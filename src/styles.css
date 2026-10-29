@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+/* Layout: фиксированный сайдбар слева + шапка + контентная сетка 12 колонок.
+   Токены в духе shadcn/ui, палитра по мотивам Linear: графитовые нейтрали,
+   приглушённый индиго как единственный акцент. Шрифт — Onest везде.
+   Фирменные «пластины» Victory остаются, но белые/бледно-индиговые. */
+
+@theme {
+  --font-display: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
+  --color-muted: var(--muted);
+  --color-muted-fg: var(--muted-fg);
+  --color-faint: var(--faint);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-hover: var(--border-hover);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-sidebar: var(--sidebar);
+  --color-row-hover: var(--row-hover);
+  --color-row-active: var(--row-active);
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+}
+
+:root {
+  color-scheme: dark;
+  --sidebar: #08090a;
+  --bg: #0e0f11;
+  --fg: #f7f8f8;
+  --card: #131416;
+  --card-2: #17181b;
+  --muted: #1f2023;
+  --row-hover: rgba(255, 255, 255, 0.055);
+  --row-active: rgba(255, 255, 255, 0.075);
+  --muted-fg: #8a8f98;
+  --faint: #62666d;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --accent: #6e79d6;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(110, 121, 214, 0.14);
+  --warn: #e2a33d;
+  --warn-soft: rgba(226, 163, 61, 0.12);
+  --ok: #4cb782;
+  --ok-soft: rgba(76, 183, 130, 0.13);
+  --danger: #eb5757;
+  --danger-soft: rgba(235, 87, 87, 0.13);
+  --glow: rgba(110, 121, 214, 0.35);
+  --plate-line: rgba(235, 238, 255, 0.22);
+  --plate-fill: rgba(235, 238, 255, 0.07);
+  --cover-bg: #0b0c0e;
+  --av-bg: 0.30;
+  --av-fg: 0.88;
+}
+:root[data-app-theme="light"] {
+  color-scheme: light;
+  --sidebar: #f3f3f4;
+  --bg: #fcfcfc;
+  --fg: #1b1c1e;
+  --card: #ffffff;
+  --card-2: #f7f7f8;
+  --muted: #f0f0f2;
+  --row-hover: rgba(16, 18, 30, 0.04);
+  --row-active: rgba(16, 18, 30, 0.075);
+  --muted-fg: #6b6f76;
+  --faint: #9a9ea6;
+  --border: rgba(16, 18, 30, 0.08);
+  --border-strong: rgba(16, 18, 30, 0.14);
+  --border-hover: rgba(16, 18, 30, 0.24);
+  --accent: #5e6ad2;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(94, 106, 210, 0.10);
+  --warn: #b57712;
+  --warn-soft: rgba(181, 119, 18, 0.10);
+  --ok: #2f9a63;
+  --ok-soft: rgba(47, 154, 99, 0.10);
+  --danger: #d03e3e;
+  --danger-soft: rgba(208, 62, 62, 0.10);
+  --glow: rgba(94, 106, 210, 0.25);
+  --plate-line: rgba(60, 70, 140, 0.20);
+  --plate-fill: rgba(94, 106, 210, 0.06);
+  --cover-bg: #eef0f6;
+  --av-bg: 0.92;
+  --av-fg: 0.40;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--sidebar);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+.display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.022em; line-height: 1.1; text-wrap: balance; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); font-weight: 500; }
+.tnum { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.no-ring:focus-visible { outline: none; }
+::selection { background: var(--accent); color: var(--accent-fg); }
+
+* { scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+
+/* Фирменные «пластины»: наклонённые скруглённые панели с тонким светлым краем */
+.plates { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.plates i {
+  position: absolute; width: 62%; aspect-ratio: 1.3; border-radius: 28px;
+  border: 1px solid var(--plate-line);
+  background: linear-gradient(135deg, var(--plate-fill), transparent 65%);
+  transform: rotate(-38deg) skewX(8deg);
+  transition: transform .7s cubic-bezier(.2,.8,.2,1);
+}
+.group:hover .plates i { transform: rotate(-38deg) skewX(8deg) translate(var(--dx, 14px), var(--dy, -10px)); }
+.cover-bg { background: radial-gradient(120% 90% at 85% 0%, rgba(110,121,214,.16), transparent 60%), var(--cover-bg); }
+
+/* Медиа из Telegram-постов */
+.media img { transition: transform .8s cubic-bezier(.2,.8,.2,1), filter .4s; }
+.group:hover .media img { transform: scale(1.07); filter: brightness(1.08); }
+
+/* Появление карточек лесенкой */
+.rise { animation: rise .55s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* Лоадер */
+.loader { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #08090a; transition: opacity .45s ease, visibility .45s; }
+.loader.done { opacity: 0; visibility: hidden; }
+.loader .mark path { fill: transparent; stroke: #e9ebff; stroke-width: 5; stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw .7s cubic-bezier(.6,0,.2,1) forwards, fillin .35s .6s ease forwards; }
+.loader .mark path:nth-child(2) { animation-delay: .12s, .7s; }
+.loader .word { opacity: 0; transform: translateY(10px); animation: wordin .4s .55s ease forwards; }
+.loader .sweep { position: absolute; inset: 0; background: radial-gradient(600px 300px at 50% 50%, rgba(110,121,214,.22), transparent 70%); opacity: 0; animation: pulse 1s .3s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fillin { to { fill: #ffffff; stroke: transparent; } }
+@keyframes wordin { to { opacity: 1; transform: none; } }
+@keyframes pulse { 40% { opacity: 1; } to { opacity: .5; } }
+
+.app-in { animation: appin .5s ease both; }
+@keyframes appin { from { opacity: 0; transform: translateY(8px) scale(.995); } }
+
+.pop { animation: pop .18s ease both; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+.sheet { animation: sheet .28s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes sheet { from { transform: translateX(32px); opacity: 0; } }
+.fade { animation: fade .2s ease both; }
+@keyframes fade { from { opacity: 0; } }
+.toast { animation: toast .35s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes toast { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; }
+  .loader .mark path { fill: #fff; stroke-dashoffset: 0; }
+  .loader .word { opacity: 1; transform: none; }
+}
+
+/* Подсказки в свёрнутом меню */
+.tip[data-tip]:hover::after {
+  content: attr(data-tip); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
+  white-space: nowrap; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500;
+  background: var(--card-2); color: var(--fg); border: 1px solid var(--border-strong);
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,.5); z-index: 60; pointer-events: none;
+}
+.tip { position: relative; }
