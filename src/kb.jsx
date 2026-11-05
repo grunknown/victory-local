@@ -2,12 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   LuScale, LuStickyNote, LuLaptop, LuNetwork, LuPalette, LuBriefcase, LuPresentation, LuSprout, LuWrench,
-  LuClock, LuChevronLeft, LuChevronRight, LuX, LuSearch, LuArrowRight, LuPlay, LuCheck, LuInfo,
+  LuVideo, LuClock, LuChevronLeft, LuChevronRight, LuX, LuSearch, LuArrowRight, LuPlay, LuCheck, LuInfo,
 } from 'react-icons/lu';
 import { DIRECTIONS, DEPTS, byId, deptPeople, PEOPLE, WELCOME_VIDEO } from './data.js';
 import { PRODUCTS, PRODUCT, ROLE_KITS } from './products.js';
 import { cx, Avatar, toast } from './ui.jsx';
-import { VideoCard, VideoPlayer } from './media.jsx';
+import { VideoPlayer } from './media.jsx';
+
+export const KbPage = ({ go }) => <NewbiePage go={go} />;
 
 // База знаний: не Confluence. Небольшой курируемый набор — новичку (презентация + план адаптации),
 // разделы плитками, список материалов и простая страница статьи с оглавлением.
@@ -188,7 +190,7 @@ function Crumbs({ items, go }) {
       {items.map((it, i) => (
         <React.Fragment key={it.label}>
           {i > 0 && <LuChevronRight className="h-3.5 w-3.5 text-faint" />}
-          {it.to ? <button onClick={() => go(it.to)} className="rounded px-1 hover:text-fg">{it.label}</button> : <span className="px-1 text-fg">{it.label}</span>}
+          {it.to ? <button onClick={() => go(it.to)} className="rounded px-1 hover:text-fg">{it.label}</button> : <span className="px-1">{it.label}</span>}
         </React.Fragment>
       ))}
     </nav>
@@ -211,46 +213,48 @@ function ArticleRow({ a, go }) {
   );
 }
 
-// ---------- Блоки базы знаний: раскрываются, как дирекции в «Сотрудниках» ----------
-const BLOCKS = [
-  { id: 'newbie', title: 'Новичку', desc: 'Презентация, видео, с чего начать и структура компании', icon: LuSprout },
-  { id: 'tech', title: 'Тех. инструкции', desc: 'VPN, почта, Wi-Fi, принтеры и доступы', icon: LuLaptop },
-  { id: 'products', title: 'О продуктах', desc: 'Всё о продуктах компании для продаж, маркетинга и онбординга', icon: LuBriefcase },
-  { id: 'rules', title: 'Регламенты и памятки', desc: 'Распорядок, ИБ, отпуск, командировки, брендбук', icon: LuScale },
+// ---------- Разделы базы знаний: у каждого своя страница, в меню раскрываются как дирекции ----------
+export const KB_SECTIONS = [
+  { id: 'newbie', title: 'Новичку', lead: 'Всё для первой недели: презентация, видео от основателей, пять шагов и структура компании.' },
+  { id: 'tech', title: 'Тех. инструкции', lead: 'VPN, почта, Wi-Fi, принтеры и доступы. Не нашли ответ — зовите Фиксиков.' },
+  { id: 'products', title: 'О продуктах', lead: 'Что мы продаём, кому и как об этом рассказывать. Для менеджеров продаж, маркетологов и новичков.' },
+  { id: 'rules', title: 'Регламенты и памятки', lead: 'Распорядок, информационная безопасность, отпуск, командировки и брендбук.' },
 ];
+const KSEC = Object.fromEntries(KB_SECTIONS.map((x) => [x.id, x]));
 const RULE_SECS = ['rules', 'memos', 'brand'];
-const blockCount = (id) => ({
-  newbie: '4 материала',
-  tech: `${ARTICLES.filter((a) => a.sec === 'it').length} инструкций`,
-  products: `${PRODUCTS.length} продуктов`,
-  rules: `${ARTICLES.filter((a) => RULE_SECS.includes(a.sec)).length} материалов`,
-}[id]);
 
-export function KbPage({ go, focus }) {
+// Какой пункт меню базы знаний подсвечивать для текущего адреса
+export function kbSectionOf(route) {
+  if (route === 'kb') return 'newbie';
+  if (!route.startsWith('kb-')) return null;
+  const id = route.slice(3);
+  if (KSEC[id]) return id;
+  if (id === 'structure') return 'newbie';
+  if (id.startsWith('p-')) return 'products';
+  const a = ART[id];
+  if (!a) return null;
+  return a.sec === 'it' ? 'tech' : a.sec === 'sales' ? 'products' : 'rules';
+}
+
+// Каркас страницы раздела: заголовок, поиск по всей базе знаний, содержимое
+function KbSection({ id, go, children }) {
+  const sec = KSEC[id];
   const [q, setQ] = useState('');
-  const [open, setOpen] = useState(() => ({ [focus || 'newbie']: true }));
   const query = q.trim().toLowerCase();
-  const found = ARTICLES.filter((a) => (a.title + ' ' + a.lead).toLowerCase().includes(query));
-  const foundProducts = PRODUCTS.filter((p) => (p.name + ' ' + p.short + ' ' + p.tag).toLowerCase().includes(query));
-
-  useEffect(() => {
-    if (!focus) return;
-    setOpen((o) => ({ ...o, [focus]: true }));
-    setTimeout(() => document.getElementById('kb-b-' + focus)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-  }, [focus]);
-
+  const found = query ? ARTICLES.filter((a) => (a.title + ' ' + a.lead).toLowerCase().includes(query)) : [];
+  const foundProducts = query ? PRODUCTS.filter((p) => (p.name + ' ' + p.short + ' ' + p.tag).toLowerCase().includes(query)) : [];
   return (
-    <div className="mx-auto max-w-[1280px]">
-      <div className="text-[13px] text-muted-fg">Всё, что нужно знать о работе в Victory Group</div>
+    <div className="mx-auto max-w-[1180px]">
+      <div className="text-[13px] text-muted-fg">База знаний</div>
       <div className="mt-1.5 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="display text-[clamp(26px,3.4vw,36px)]">База знаний</h1>
-        <label className="flex h-10 w-full items-center gap-2 rounded-xl bg-card px-3 text-muted-fg focus-within:ring-1 focus-within:ring-white/20 sm:w-[320px]">
+        <h1 className="display text-[clamp(28px,3.6vw,40px)]">{sec.title}</h1>
+        <label className="flex h-10 w-full items-center gap-2 rounded-xl bg-card px-3 text-muted-fg focus-within:ring-1 focus-within:ring-white/20 sm:w-[300px]">
           <LuSearch className="h-4 w-4 shrink-0" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Найти статью или продукт" className="no-ring min-w-0 flex-1 bg-transparent text-[13.5px] text-fg outline-none placeholder:text-muted-fg" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по базе знаний" className="no-ring min-w-0 flex-1 bg-transparent text-[13.5px] text-fg outline-none placeholder:text-muted-fg" />
           {q && <button onClick={() => setQ('')} aria-label="Очистить"><LuX className="h-3.5 w-3.5" /></button>}
         </label>
       </div>
-
+      <p className="mt-3 max-w-[640px] text-[15.5px] text-muted-fg">{sec.lead}</p>
       {query ? (
         <div className="mt-8">
           <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Найдено: {found.length + foundProducts.length}</h2>
@@ -259,7 +263,7 @@ export function KbPage({ go, focus }) {
               <button key={p.id} onClick={() => go('kb-p-' + p.id)} className="group/r flex w-full items-center gap-3.5 rounded-xl px-3 py-3 text-left transition-colors hover:bg-row-hover">
                 <SecIcon s={{ icon: LuBriefcase }} size={32} />
                 <span className="min-w-0 flex-1"><span className="block truncate text-[14.5px] font-medium">{p.name}</span><span className="mt-0.5 block truncate text-[13px] text-muted-fg">{p.short}</span></span>
-                <span className="hidden shrink-0 text-[12.5px] text-muted-fg sm:block">Продукт</span>
+                <span className="hidden shrink-0 text-[12.5px] text-muted-fg sm:block">О продуктах</span>
                 <LuArrowRight className="h-4 w-4 shrink-0 text-faint" />
               </button>
             ))}
@@ -267,87 +271,71 @@ export function KbPage({ go, focus }) {
           </div>
           {found.length + foundProducts.length === 0 && <p className="mt-3 text-[14px] text-muted-fg">Ничего не нашлось. Попробуйте другое слово или спросите в HR.</p>}
         </div>
-      ) : (
-        <div className="mt-8 flex flex-col gap-3">
-          {BLOCKS.map((b) => {
-            const isOpen = !!open[b.id];
-            return (
-              <section key={b.id} id={'kb-b-' + b.id} className="scroll-mt-20 rounded-3xl bg-card">
-                <button onClick={() => setOpen((o) => ({ ...o, [b.id]: !isOpen }))} aria-expanded={isOpen}
-                  className="group/b flex w-full items-center gap-4 rounded-3xl p-4 text-left transition-colors hover:bg-card-2 sm:p-5">
-                  <SecIcon s={b} size={44} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[17px] font-semibold tracking-[-0.01em]">{b.title}</span>
-                    <span className="mt-0.5 block truncate text-[13px] text-muted-fg">{b.desc}</span>
-                  </span>
-                  <span className="hidden shrink-0 text-[12.5px] text-muted-fg tnum sm:block">{blockCount(b.id)}</span>
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-fg group-hover/b:text-fg">
-                    <LuChevronRight className={cx('h-4 w-4 transition-transform duration-200', isOpen && 'rotate-90')} />
-                  </span>
-                </button>
-                {isOpen && (
-                  <div className="fade px-4 pb-5 sm:px-5">
-                    {b.id === 'newbie' && <NewbieBlock go={go} />}
-                    {b.id === 'tech' && <TechBlock go={go} />}
-                    {b.id === 'products' && <ProductsBlock go={go} />}
-                    {b.id === 'rules' && <div className="-mx-3 flex flex-col">{RECENT.filter((a) => RULE_SECS.includes(a.sec)).map((a) => <ArticleRow key={a.id} a={a} go={go} />)}</div>}
-                  </div>
-                )}
-              </section>
-            );
-          })}
-        </div>
-      )}
+      ) : children}
+    </div>
+  );
+}
+
+// Плитка с медиа: превью 16:9 сверху, подпись снизу. Не <button>, чтобы содержимое не центрировалось по высоте.
+function MediaTile({ onOpen, icon: Icon, label, meta, children }) {
+  return (
+    <div role="button" tabIndex={0} onClick={onOpen} onKeyDown={(e) => e.key === 'Enter' && onOpen()}
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-3xl bg-card transition-all duration-300 hover:-translate-y-0.5 hover:bg-card-2">
+      <div className="relative aspect-[16/9] overflow-hidden bg-black">
+        {children}
+        <span className="absolute top-4 right-4 grid h-12 w-12 place-items-center rounded-full bg-white text-black shadow-lg transition-transform duration-300 group-hover:scale-110"><LuPlay className="ml-0.5 h-5 w-5" /></span>
+      </div>
+      <div className="flex items-center gap-3 px-5 py-4">
+        <Icon className="h-4.5 w-4.5 shrink-0 text-muted-fg" />
+        <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{label}</span>
+        <span className="shrink-0 text-[12.5px] text-muted-fg tnum">{meta}</span>
+      </div>
     </div>
   );
 }
 
 // ---------- Новичку ----------
-function NewbieBlock({ go }) {
+const FIRST_STEPS = [['routine', 'Прочитать правила распорядка'], ['security', 'Разобраться с безопасностью'], ['laptop', 'Получить ноутбук и доступы'], ['vpn', 'Настроить VPN'], ['products', 'Узнать, что мы продаём']];
+
+function NewbiePage({ go }) {
   const [deck, setDeck] = useState(false);
   const [video, setVideo] = useState(false);
   return (
-    <>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.5fr_0.62fr] xl:grid-cols-[1.5fr_0.62fr_1.2fr]">
-        <button onClick={() => setDeck(true)} className={cx('group relative overflow-hidden rounded-2xl bg-card-2 text-left transition-all duration-200 hover:-translate-y-0.5')}>
-          <div className="cover-bg relative aspect-[16/9] w-full overflow-hidden">
-            <Plates />
-            <SlideBody s={SLIDES[0]} />
-            <span className="absolute top-4 right-4 grid h-11 w-11 place-items-center rounded-full bg-white text-black shadow-lg transition-transform group-hover:scale-105"><LuPlay className="ml-0.5 h-4.5 w-4.5" /></span>
-          </div>
-          <div className="flex items-center gap-3 p-4">
-            <LuPresentation className="h-4.5 w-4.5 text-muted-fg" />
-            <span className="flex-1 text-[14.5px] font-medium">Презентация для новичков</span>
-            <span className="text-[12.5px] text-muted-fg">{SLIDES.length} слайдов</span>
-          </div>
-        </button>
-        <VideoCard v={WELCOME_VIDEO} onOpen={() => setVideo(true)} />
-        <div className="flex flex-col rounded-2xl bg-card-2 p-5 md:col-span-2 xl:col-span-1">
-          <div className="text-[15px] font-semibold">С чего начать</div>
-          <div className="mt-0.5 text-[13px] text-muted-fg">Пять шагов на первую неделю</div>
-          <div className="-mx-2 mt-3 flex flex-1 flex-col justify-between">
-            {[['routine', 'Прочитать правила распорядка'], ['security', 'Разобраться с безопасностью'], ['laptop', 'Получить ноутбук и доступы'], ['vpn', 'Настроить VPN'], ['kb-products', 'Узнать, что мы продаём']].map(([id, label], i) => (
-              <button key={id} onClick={() => go(id.startsWith('kb-') ? id : 'kb-' + id)} className="group/s flex items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-row-hover">
-                <span className="tnum w-5 text-[12.5px] text-muted-fg">{String(i + 1).padStart(2, '0')}</span>
-                <span className="min-w-0 flex-1 truncate text-[14px]">{label}</span>
-                <LuArrowRight className="h-3.5 w-3.5 shrink-0 text-faint group-hover/s:text-fg" />
-              </button>
-            ))}
-          </div>
-        </div>
+    <KbSection id="newbie" go={go}>
+      <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MediaTile onOpen={() => setDeck(true)} icon={LuPresentation} label="Презентация для новичков" meta={`${SLIDES.length} слайдов`}>
+          <div className="cover-bg absolute inset-0"><Plates /><SlideBody s={SLIDES[0]} /></div>
+        </MediaTile>
+        <MediaTile onOpen={() => setVideo(true)} icon={LuVideo} label={WELCOME_VIDEO.title} meta={WELCOME_VIDEO.dur}>
+          <img src={WELCOME_VIDEO.cover} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        </MediaTile>
       </div>
 
-      <div className="mt-6 flex items-end justify-between gap-3">
+      <h2 className="mt-12 text-[20px] font-semibold tracking-[-0.01em]">С чего начать</h2>
+      <p className="mt-1 text-[14px] text-muted-fg">Пять шагов на первую неделю</p>
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {FIRST_STEPS.map(([id, label], i) => (
+          <button key={id} onClick={() => go('kb-' + id)} className="group flex min-h-[132px] flex-col rounded-2xl bg-card p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-card-2">
+            <span className="tnum text-[13px] text-muted-fg">{String(i + 1).padStart(2, '0')}</span>
+            <span className="mt-2 text-[15px] leading-snug font-medium">{label}</span>
+            <LuArrowRight className="mt-auto h-4 w-4 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-fg" />
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-12 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="text-[15px] font-semibold">Структура компании</div>
-          <div className="mt-0.5 text-[13px] text-muted-fg">Кто есть кто — чтобы случайно не послать CEO</div>
+          <h2 className="text-[20px] font-semibold tracking-[-0.01em]">Структура компании</h2>
+          <p className="mt-1 text-[14px] text-muted-fg">Кто есть кто — чтобы случайно не послать CEO</p>
         </div>
-        <button onClick={() => go('kb-structure')} className="flex shrink-0 items-center gap-1.5 text-[13px] text-muted-fg hover:text-fg">Подробная схема<LuArrowRight className="h-3.5 w-3.5" /></button>
+        <button onClick={() => go('kb-structure')} className="flex items-center gap-1.5 text-[13.5px] text-muted-fg hover:text-fg">Подробная схема<LuArrowRight className="h-3.5 w-3.5" /></button>
       </div>
       <MiniStructure go={go} />
+
       {deck && <Deck onClose={() => setDeck(false)} />}
       {video && <VideoPlayer list={[WELCOME_VIDEO]} onClose={() => setVideo(false)} />}
-    </>
+    </KbSection>
   );
 }
 
@@ -357,8 +345,8 @@ function MiniStructure({ go }) {
   const board = deptPeople('board');
   const dirs = DIRECTIONS.filter((d) => d.id !== 'board');
   return (
-    <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.6fr]">
-      <div className="rounded-2xl bg-card-2 p-3">
+    <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-[0.9fr_1.6fr]">
+      <div className="rounded-3xl bg-card p-3">
         <div className="eyebrow px-2 pt-1 pb-2">Правление</div>
         {board.map((p) => (
           <button key={p.id} onClick={() => go('people')} className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-row-hover">
@@ -367,9 +355,9 @@ function MiniStructure({ go }) {
           </button>
         ))}
       </div>
-      <div className="rounded-2xl bg-card-2 p-3">
+      <div className="rounded-3xl bg-card p-3">
         <div className="eyebrow px-2 pt-1 pb-2">Дирекции</div>
-        <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-x-3 sm:grid-cols-2">
           {dirs.map((d) => {
             const D = DEPTS[d.id];
             const head = byId(D.head);
@@ -384,8 +372,8 @@ function MiniStructure({ go }) {
                 {isOpen && (
                   <div className="fade mb-1 ml-[22px] flex flex-col pl-3">
                     {D.children.map((c) => (
-                      <button key={c.id} onClick={() => go('people-' + c.id)} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] text-muted-fg hover:bg-row-hover hover:text-fg">
-                        <span className="min-w-0 flex-1 truncate">{DEPTS[c.id].name}</span>
+                      <button key={c.id} onClick={() => go('people-' + c.id)} className="rounded-lg px-2 py-1.5 text-left text-[13px] text-muted-fg hover:bg-row-hover hover:text-fg">
+                        <span className="block truncate">{DEPTS[c.id].name}</span>
                       </button>
                     ))}
                   </div>
@@ -400,31 +388,34 @@ function MiniStructure({ go }) {
 }
 
 // ---------- Тех. инструкции ----------
-function TechBlock({ go }) {
+function TechPage({ go }) {
   return (
-    <>
-      <div className="-mx-3 flex flex-col">{RECENT.filter((a) => a.sec === 'it').map((a) => <ArticleRow key={a.id} a={a} go={go} />)}</div>
-      <button onClick={() => go('it')} className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-card-2 p-4 text-left transition-colors hover:bg-muted">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-black"><LuWrench className="h-4.5 w-4.5" /></span>
-        <span className="flex-1"><span className="block text-[14.5px] font-medium">Не нашли ответ?</span><span className="block text-[13px] text-muted-fg">Позовите Фиксиков — подойдут к вашему месту</span></span>
+    <KbSection id="tech" go={go}>
+      <div className="mt-8 rounded-3xl bg-card p-2">
+        {RECENT.filter((a) => a.sec === 'it').map((a) => <ArticleRow key={a.id} a={a} go={go} />)}
+      </div>
+      <button onClick={() => go('it')} className="mt-4 flex w-full items-center gap-4 rounded-3xl bg-card p-5 text-left transition-colors hover:bg-card-2">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-black"><LuWrench className="h-5 w-5" /></span>
+        <span className="flex-1"><span className="block text-[15px] font-medium">Не нашли ответ?</span><span className="block text-[13.5px] text-muted-fg">Позовите Фиксиков — подойдут к вашему месту</span></span>
         <LuArrowRight className="h-4 w-4 text-faint" />
       </button>
-    </>
+    </KbSection>
   );
 }
 
-// ---------- О продуктах: превью в базе знаний ----------
-function ProductsBlock({ go }) {
+// ---------- Регламенты и памятки ----------
+function RulesPage({ go }) {
   return (
-    <>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {PRODUCTS.map((p) => <ProductCard key={p.id} p={p} go={go} />)}
-        <button onClick={() => go('kb-products')} className="flex flex-col justify-between rounded-2xl bg-white p-4 text-left text-black transition-transform hover:-translate-y-0.5">
-          <span className="text-[15px] font-semibold">Вся информация о продуктах</span>
-          <span className="mt-6 flex items-center gap-1.5 text-[13px] font-medium">Для продаж, маркетинга и онбординга<LuArrowRight className="h-4 w-4" /></span>
-        </button>
-      </div>
-    </>
+    <KbSection id="rules" go={go}>
+      {RULE_SECS.map((sid) => (
+        <section key={sid} className="mt-10">
+          <h2 className="text-[17px] font-semibold tracking-[-0.01em]">{SEC[sid].title}</h2>
+          <div className="mt-3 rounded-3xl bg-card p-2">
+            {RECENT.filter((a) => a.sec === sid).map((a) => <ArticleRow key={a.id} a={a} go={go} />)}
+          </div>
+        </section>
+      ))}
+    </KbSection>
   );
 }
 
@@ -444,24 +435,12 @@ function ProductCard({ p, go, big }) {
   );
 }
 
-const DraftNote = () => (
-  <div className="mt-5 flex max-w-[760px] gap-3 rounded-2xl bg-warn-soft p-4 text-[13.5px] leading-[1.5]">
-    <LuInfo className="mt-0.5 h-4.5 w-4.5 shrink-0 text-warn" />
-    <span><span className="font-medium text-warn">Черновик.</span> Тексты собраны по направлениям компании и пока не сверены с разделом «Продукты» на victoryagency.ru и с владельцами продуктов.</span>
-  </div>
-);
-
 // Разводящая страница продуктов
 function ProductsPage({ go }) {
-  const kitLinks = { 'Прайс на услуги 2026': 'kb-price', 'Кейсы для презентаций': 'kb-cases', 'Брендбук и шаблоны': 'kb-logo', 'Все продукты за 10 минут': 'kb-products', 'Какая дирекция что делает': 'kb-structure' };
+  const kitLinks = { 'Прайс на услуги 2026': 'kb-price', 'Кейсы для презентаций': 'kb-cases', 'Брендбук и шаблоны': 'kb-logo', 'Какая дирекция что делает': 'kb-structure' };
   return (
-    <div className="mx-auto max-w-[1280px]">
-      <Crumbs items={[{ label: 'База знаний', to: 'kb' }, { label: 'О продуктах' }]} go={go} />
-      <h1 className="display mt-6 text-[clamp(28px,3.8vw,44px)]">Продукты Victory Group</h1>
-      <p className="mt-3 max-w-[680px] text-[16px] text-muted-fg">Что мы продаём, кому и как об этом рассказывать. Одна страница для продажников, маркетологов и новичков.</p>
-      <DraftNote />
-
-      <h2 className="mt-12 text-[17px] font-semibold tracking-[-0.01em]">Материалы по ролям</h2>
+    <KbSection id="products" go={go}>
+      <h2 className="mt-10 text-[17px] font-semibold tracking-[-0.01em]">Материалы по ролям</h2>
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
         {ROLE_KITS.map((k) => (
           <div key={k.id} className="rounded-2xl bg-card p-5">
@@ -483,7 +462,7 @@ function ProductsPage({ go }) {
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {PRODUCTS.map((p) => <ProductCard key={p.id} p={p} go={go} big />)}
       </div>
-    </div>
+    </KbSection>
   );
 }
 
@@ -499,13 +478,12 @@ function ProductPage({ id, go, openPerson }) {
   const nextP = PRODUCTS[(i + 1) % PRODUCTS.length];
   return (
     <ArticleShell go={go} title={p.name} heads={heads}
-      crumbs={[{ label: 'База знаний', to: 'kb' }, { label: 'О продуктах', to: 'kb-products' }, { label: p.name }]}
+      crumbs={[{ label: 'База знаний' }, { label: 'О продуктах', to: 'kb-products' }]}
       meta={<>
         <p className="mt-3 max-w-[680px] text-[17px] text-muted-fg">{p.short}</p>
         <div className="mt-6 flex max-w-[680px] flex-wrap gap-3">
           {p.facts.map(([n, l]) => <div key={l} className="min-w-[160px] flex-1 rounded-2xl bg-card p-4"><div className="text-[24px] font-semibold tnum">{n}</div><div className="mt-0.5 text-[13px] text-muted-fg">{l}</div></div>)}
         </div>
-        <DraftNote />
       </>}
       aside={
         <div className="max-w-[680px]">
@@ -612,17 +590,19 @@ function Author({ dept, upd, mins }) {
 
 export function KbArticle({ id, go, openPerson }) {
   if (id === 'structure') return <Structure go={go} />;
-  if (id.startsWith('s-')) return <KbPage go={go} focus={id.slice(2)} />;
+  if (id === 'newbie') return <NewbiePage go={go} />;
+  if (id === 'tech') return <TechPage go={go} />;
+  if (id === 'rules') return <RulesPage go={go} />;
   if (id === 'products') return <ProductsPage go={go} />;
   if (id.startsWith('p-')) return <ProductPage id={id.slice(2)} go={go} openPerson={openPerson} />;
   const a = ART[id];
-  if (!a) return <KbPage go={go} />;
+  if (!a) return <NewbiePage go={go} />;
   const heads = a.body.filter((b) => b.h).map((b) => b.h);
   const more = ARTICLES.filter((x) => x.sec === a.sec && x.id !== a.id).slice(0, 3);
   const owner = byId(DEPTS[a.dept]?.head);
   return (
     <ArticleShell go={go} title={a.title} heads={heads}
-      crumbs={[{ label: 'База знаний', to: 'kb' }, { label: SEC[a.sec].title }]}
+      crumbs={[{ label: 'База знаний' }, { label: KSEC[kbSectionOf('kb-' + a.id)].title, to: 'kb-' + kbSectionOf('kb-' + a.id) }]}
       meta={<><p className="mt-3 max-w-[680px] text-[16px] text-muted-fg">{a.lead}</p><Author dept={a.dept} upd={a.upd} mins={a.mins} /></>}
       aside={
         <div className="max-w-[680px]">
@@ -653,7 +633,7 @@ function Structure({ go }) {
   const board = deptPeople('board');
   return (
     <ArticleShell go={go} title="Структура компании" heads={['Правление', 'Дирекции']}
-      crumbs={[{ label: 'База знаний', to: 'kb' }, { label: 'Структура компании' }]}
+      crumbs={[{ label: 'База знаний' }, { label: 'Новичку', to: 'kb-newbie' }]}
       meta={<><p className="mt-3 max-w-[680px] text-[16px] text-muted-fg">Victory Group состоит из {dirs.length} дирекций. Схема собирается из оргструктуры портала, поэтому всегда актуальна. Нажмите на отдел, чтобы увидеть людей.</p></>}>
       <h2 id={slug('Правление')} className="mt-10 scroll-mt-24 text-[20px] font-semibold tracking-[-0.01em]">Правление</h2>
       <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">

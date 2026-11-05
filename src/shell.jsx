@@ -5,6 +5,7 @@ import {
 } from 'react-icons/lu';
 import { MARK, WORD } from './logo.js';
 import { Caret, CaretRight } from './icons.jsx';
+import { kbSectionOf } from './kb.jsx';
 import { DIRECTIONS, DEPTS, GROUPS, PEOPLE, ME, byId, dirCount, managerOf, search, MY_COINS, deptPeople } from './data.js';
 import { cx, Avatar, VacationPill, StatusPill, Coin, fmtDay, fmtDM, tenure, deptPath, copyText, Button } from './ui.jsx';
 
@@ -17,10 +18,10 @@ export const NAV_OFFICE = [
   { id: 'it', label: 'Помощь Фиксиков', icon: LuHeadset },
   { id: 'forms', label: 'Бланки документов', icon: LuFileText },
   { id: 'kb', label: 'База знаний', icon: LuBookOpen, children: [
-    { id: 'kb-s-newbie', label: 'Новичку' },
-    { id: 'kb-s-tech', label: 'Тех. инструкции' },
+    { id: 'kb-newbie', label: 'Новичку' },
+    { id: 'kb-tech', label: 'Тех. инструкции' },
     { id: 'kb-products', label: 'О продуктах' },
-    { id: 'kb-s-rules', label: 'Регламенты и памятки' },
+    { id: 'kb-rules', label: 'Регламенты и памятки' },
   ] },
   { id: 'store', label: 'Магазин мерча', icon: LuShoppingBag },
 ];
@@ -174,14 +175,15 @@ export function Sidebar({ route, go, open, onClose }) {
                 {NAV_OFFICE.map((n) => {
                   const kids = n.children;
                   const isOpen = openDirs[n.id] ?? (kids && route.startsWith(n.id));
+                  const curKid = kids && kbSectionOf(route);
                   const toggle = () => setOpenDirs((o) => ({ ...o, [n.id]: !isOpen }));
                   return (
                     <div key={n.id}>
-                      <Row icon={n.icon} label={n.label} collapsed={c} active={route === n.id || (!kids && route.startsWith(n.id + '-'))} onClick={() => go(n.id)}
+                      <Row icon={n.icon} label={n.label} collapsed={c} active={!kids && (route === n.id || route.startsWith(n.id + '-'))} onClick={kids ? toggle : () => go(n.id)}
                         trailing={kids && (
                           <span role="button" tabIndex={0} aria-label={isOpen ? 'Свернуть' : 'Развернуть'}
                             onClick={(e) => { e.stopPropagation(); toggle(); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); toggle(); } }}
-                            className={cx('-mr-1 grid h-5 w-5 place-items-center rounded text-muted-fg transition-opacity hover:bg-row-hover hover:text-fg', isOpen ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100')}>
+                            className="-mr-1 grid h-5 w-5 place-items-center rounded text-muted-fg hover:bg-row-hover hover:text-fg">
                             <CaretRight className={cx('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-90')} />
                           </span>
                         )} />
@@ -190,7 +192,7 @@ export function Sidebar({ route, go, open, onClose }) {
                           {kids.map((x) => (
                             <button key={x.id} onClick={() => go(x.id)}
                               className={cx('flex h-[28px] items-center rounded-md px-2 text-left text-[13px] transition-colors',
-                                route === x.id ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
+                                (route === x.id || 'kb-' + curKid === x.id) ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
                               <span className="truncate">{x.label}</span>
                             </button>
                           ))}
@@ -243,7 +245,7 @@ const ACTIONS = [
   { label: 'Забронировать переговорку', hint: 'Переговорки', to: 'rooms', kw: 'переговорка бронь встреча' },
   { label: 'Не работает принтер, VPN или почта', hint: 'Помощь Фиксиков', to: 'it', kw: 'принтер vpn почта пароль it айти компьютер монитор' },
   { label: 'Справка с места работы, 2-НДФЛ', hint: 'Бланки документов', to: 'forms', kw: 'справка ндфл' },
-  { label: 'Новичку: с чего начать', hint: 'База знаний', to: 'kb', kw: 'онбординг новичок памятка адаптация' },
+  { label: 'Новичку: с чего начать', hint: 'База знаний', to: 'kb-newbie', kw: 'онбординг новичок памятка адаптация' },
   { label: 'Магазин мерча', hint: 'Victory Coin', to: 'store', kw: 'мерч худи магазин коины' },
 ];
 

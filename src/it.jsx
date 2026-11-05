@@ -123,14 +123,6 @@ function Ticket({ t, fixer, openPerson }) {
       <p className="mt-2.5 text-[14.5px] leading-snug">{t.text}</p>
       <div className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-muted-fg"><LuMapPin className="h-3.5 w-3.5" />{t.place}</div>
 
-      {/* шаги */}
-      <div className="mt-4 grid grid-cols-3 gap-1.5">
-        {STEPS.map((s, i) => <span key={s} className={cx('h-1 rounded-full transition-colors duration-500', i <= t.step ? (done ? 'bg-ok' : 'bg-fg') : 'bg-muted')} />)}
-      </div>
-      <div className="mt-1.5 grid grid-cols-3 gap-1.5 text-[11.5px]">
-        {STEPS.map((s, i) => <span key={s} className={cx(i <= t.step ? 'text-fg/85' : 'text-faint', i === 1 && 'text-center', i === 2 && 'text-right')}>{s}</span>)}
-      </div>
-
       {t.step >= 1 && fixer && (
         <button onClick={() => openPerson(fixer.id)} className="-mx-2 mt-3 flex w-[calc(100%+16px)] items-center gap-2.5 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-row-hover">
           <Avatar p={fixer} size={28} />

@@ -1,32 +1,43 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LuChevronLeft, LuChevronRight, LuX, LuPlay, LuPause, LuEye, LuArrowRight } from 'react-icons/lu';
-import { STORIES, VIDEOS } from './data.js';
+import { STORIES } from './data.js';
 import { cx, plural } from './ui.jsx';
 
 const SLIDE_MS = 5000;
 const seen = new Set(); // просмотренные группы сторис — на время сессии
 
-// ---------------- Сторис: лента кружков ----------------
+// ---------------- Сторис: лента кружков во всю ширину панели ----------------
 export function StoriesRow({ go }) {
   const [open, setOpen] = useState(null);
   const [, rerender] = useState(0);
+  const [edge, setEdge] = useState({ l: false, r: true });
+  const ref = useRef();
+  const check = () => { const el = ref.current; if (el) setEdge({ l: el.scrollLeft > 4, r: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 }); };
+  useEffect(() => { check(); addEventListener('resize', check); return () => removeEventListener('resize', check); }, []);
+  const scroll = (d) => ref.current?.scrollBy({ left: d * ref.current.clientWidth * 0.8, behavior: 'smooth' });
+  const arrow = 'absolute top-[30px] z-10 hidden h-10 w-10 place-items-center rounded-full bg-card-2/90 text-fg shadow-xl backdrop-blur transition-opacity hover:bg-muted md:grid';
   return (
-    <>
-      <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:px-0">
+    <div className="group/st relative -mx-4 lg:-mx-8">
+      <div ref={ref} onScroll={check} className="flex gap-5 overflow-x-auto px-4 pt-1 pb-1 [scrollbar-width:none] lg:px-[max(2rem,calc((100%-1320px)/2))] [&::-webkit-scrollbar]:hidden">
         {STORIES.map((g, i) => (
-          <button key={g.id} onClick={() => setOpen(i)} className="group flex w-[76px] shrink-0 flex-col items-center gap-2">
+          <button key={g.id} onClick={() => setOpen(i)} className="group flex w-[80px] shrink-0 flex-col items-center gap-2">
             <span className={cx('story-ring rounded-full p-[2.5px] transition-transform duration-300 group-hover:scale-105', seen.has(g.id) && 'seen')}>
               <span className="block rounded-full bg-bg p-[3px]">
-                <img src={g.cover} alt="" className="h-[62px] w-[62px] rounded-full object-cover" />
+                <img src={g.cover} alt="" className="h-[66px] w-[66px] rounded-full object-cover" />
               </span>
             </span>
             <span className={cx('w-full truncate text-center text-[12px]', seen.has(g.id) ? 'text-muted-fg' : 'text-fg')}>{g.label}</span>
           </button>
         ))}
       </div>
+      {/* затухание по краям и стрелки */}
+      <div className={cx('pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-bg to-transparent transition-opacity', edge.l ? 'opacity-100' : 'opacity-0')} />
+      <div className={cx('pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-bg to-transparent transition-opacity', edge.r ? 'opacity-100' : 'opacity-0')} />
+      <button onClick={() => scroll(-1)} aria-label="Прокрутить назад" className={cx(arrow, 'left-3', edge.l ? 'opacity-0 group-hover/st:opacity-100' : 'pointer-events-none opacity-0')}><LuChevronLeft className="h-5 w-5" /></button>
+      <button onClick={() => scroll(1)} aria-label="Прокрутить вперёд" className={cx(arrow, 'right-3', edge.r ? 'opacity-0 group-hover/st:opacity-100' : 'pointer-events-none opacity-0')}><LuChevronRight className="h-5 w-5" /></button>
       {open !== null && <StoryViewer start={open} go={go} onClose={() => { setOpen(null); rerender((x) => x + 1); }} />}
-    </>
+    </div>
   );
 }
 
@@ -123,23 +134,8 @@ function StoryViewer({ start, onClose, go }) {
   );
 }
 
-// ---------------- Видео: карточки + плеер поверх страницы ----------------
+// ---------------- Видео: плеер поверх страницы ----------------
 const views = (n) => `${n.toLocaleString('ru')} ${plural(n, 'просмотр', 'просмотра', 'просмотров')}`;
-
-export function VideoCard({ v, onOpen, i = 0 }) {
-  return (
-    <button onClick={onOpen} style={{ '--i': i }} className="group rise flex min-w-0 flex-col text-left">
-      <span className="relative block aspect-[9/14] overflow-hidden rounded-2xl bg-card">
-        <img src={v.poster} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-        <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-        <span className="absolute top-1/2 left-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black shadow-xl transition-transform duration-300 group-hover:scale-110"><LuPlay className="ml-0.5 h-5 w-5" /></span>
-        <span className="absolute right-2.5 bottom-2.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[11.5px] font-medium text-white tnum">{v.dur}</span>
-      </span>
-      <span className="mt-2.5 line-clamp-2 text-[14px] leading-snug font-medium">{v.title}</span>
-      {v.views && <span className="mt-1 flex items-center gap-1 text-[12px] text-muted-fg"><LuEye className="h-3.5 w-3.5" />{views(v.views)}</span>}
-    </button>
-  );
-}
 
 export function VideoPlayer({ list, start = 0, onClose }) {
   const [i, setI] = useState(start);
@@ -172,21 +168,5 @@ export function VideoPlayer({ list, start = 0, onClose }) {
         className="ml-6 hidden h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 disabled:opacity-0 md:grid"><LuChevronRight className="h-5 w-5" /></button>
     </div>,
     document.body,
-  );
-}
-
-export function VideoRow({ title = 'Видео', action, cols = 'grid-cols-2 sm:grid-cols-4' }) {
-  const [open, setOpen] = useState(null);
-  return (
-    <section>
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">{title}</h2>
-        {action}
-      </div>
-      <div className={cx('mt-3 grid gap-3', cols)}>
-        {VIDEOS.map((v, i) => <VideoCard key={v.id} v={v} i={i} onOpen={() => setOpen(i)} />)}
-      </div>
-      {open !== null && <VideoPlayer list={VIDEOS} start={open} onClose={() => setOpen(null)} />}
-    </section>
   );
 }

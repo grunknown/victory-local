@@ -30,9 +30,8 @@ const html = `<!doctype html>
 <body><div id="root"></div>
 <script>${js.replace(/<\/script/gi, '<\\/script')}</script></body></html>
 `;
-fs.mkdirSync('dist/assets/photos', { recursive: true });
+fs.mkdirSync('dist', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
-for (const f of fs.readdirSync('assets/photos')) fs.copyFileSync('assets/photos/' + f, 'dist/assets/photos/' + f);
-fs.mkdirSync('dist/assets/videos', { recursive: true });
-for (const f of fs.readdirSync('assets/videos')) fs.copyFileSync('assets/videos/' + f, 'dist/assets/videos/' + f);
+// все картинки и видео: фото, сторис, обложки новостей, кадры, ролики
+fs.cpSync('assets', 'dist/assets', { recursive: true });
 console.log('js', (js.length / 1024 | 0) + 'KB', 'css', (css.length / 1024 | 0) + 'KB', 'html', (html.length / 1024 | 0) + 'KB');
