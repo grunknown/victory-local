@@ -9,7 +9,7 @@ import { cx, Avatar, StatusPill, copyText, toast } from './ui.jsx';
 const DIR_HUE = { board: 265, marketing: 230, orm: 200, leadgen: 30, production: 300, clients: 150, vdl: 55, it: 210, people: 340, admin: 100 };
 export const DirTile = ({ d, size = 18 }) => (
   <span className="grid shrink-0 place-items-center rounded-[5px] font-semibold"
-    style={{ width: size, height: size, fontSize: size * 0.55, background: `oklch(0.62 0.12 ${DIR_HUE[d.id] ?? 260} / 0.2)`, color: `oklch(0.78 0.12 ${DIR_HUE[d.id] ?? 260})` }}>
+    style={{ width: size, height: size, fontSize: size * 0.55, background: 'rgba(255,255,255,0.08)', color: 'rgba(245,245,245,0.85)' }}>
     {d.short[0]}
   </span>
 );

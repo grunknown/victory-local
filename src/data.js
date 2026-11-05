@@ -262,6 +262,45 @@ export const EVENTS = [
   { title: 'Victory Night', date: addDays(TODAY, 61), time: '18:00', place: 'Загородный клуб', desc: 'Новогодний корпоратив, дресс-код 1920-х' },
 ].sort((a, b) => a.date - b.date);
 
+// ---------- Видео (вертикальные ролики, открываются прямо на главной) ----------
+// Сейчас это заглушки из фото команды: scripts/make-videos.sh
+export const VIDEOS = [
+  { id: 'v-office', title: 'Тур по новому офису на Восточной', src: 'assets/videos/office.mp4', poster: 'assets/videos/office.jpg', dur: '0:11', rubric: 'События', views: 1240, date: addDays(TODAY, 0) },
+  { id: 'v-shoot', title: 'Бэкстейдж фотосессии команды', src: 'assets/videos/shoot.mp4', poster: 'assets/videos/shoot.jpg', dur: '0:11', rubric: 'Команда', views: 860, date: addDays(TODAY, -1) },
+  { id: 'v-awards', title: 'SERM на Tagline Awards: как это было', src: 'assets/videos/awards.mp4', poster: 'assets/videos/awards.jpg', dur: '0:11', rubric: 'Достижения', views: 1532, date: addDays(TODAY, -2) },
+  { id: 'v-motion', title: 'Моушн-дизайнеры показывают шоурил', src: 'assets/videos/motion.mp4', poster: 'assets/videos/motion.jpg', dur: '0:11', rubric: 'Команда', views: 701, date: addDays(TODAY, -6) },
+];
+export const WELCOME_VIDEO = { id: 'v-welcome', title: 'Привет от основателей: что такое Victory Group', src: 'assets/videos/welcome.mp4', poster: 'assets/videos/welcome.jpg', dur: '0:11' };
+
+// ---------- Сторис ----------
+// Каждая группа — кружок в ленте; внутри слайды: фото или фирменные «пластины» с текстом.
+export const STORIES = [
+  { id: 's-move', label: 'Переезд', cover: 'assets/photos/p15.jpg', slides: [
+    { img: 'assets/photos/p15.jpg', title: 'Мы на Восточной, 7Г', text: 'Первая волна уже въехала: продакшн и IT на 3 и 4 этажах.' },
+    { title: 'Кофейня работает', text: 'Первый этаж, с 8:00 до 20:00. Капучино по пропуску — бесплатно до конца ноября.' },
+    { title: 'Переговорки — только через портал', text: 'Восемь комнат, бронь занимает десять секунд.', cta: { label: 'Забронировать', to: 'rooms' } },
+  ] },
+  { id: 's-merch', label: 'Мерч', cover: 'assets/photos/p07.jpg', slides: [
+    { img: 'assets/photos/p07.jpg', title: 'Новая коллекция худи', text: 'Чёрные, тяжёлые, с вышивкой. Лимит — 120 штук.' },
+    { title: 'За Victory Coin', text: 'Худи — 1 200 коинов, футболка — 600.', cta: { label: 'В магазин', to: 'store' } },
+  ] },
+  { id: 's-newbies', label: 'Новички', cover: 'assets/photos/p14.jpg', slides: [
+    { img: 'assets/photos/p14.jpg', title: 'Юлия, продакт-дизайнер', text: 'Пришла из финтеха, любит сложные интерфейсы и горы.' },
+    { img: 'assets/photos/p09.jpg', title: 'Егор, performance', text: 'Пять лет в контексте. Скажите ему «ДРР» — и он расскажет всё.' },
+  ] },
+  { id: 's-wheel', label: 'Колесо', cover: 'assets/photos/p11.jpg', slides: [
+    { title: 'Колесо фортуны', text: 'В пятницу в 17:00 в кофейне. Призы: мерч, коины и поздний старт.' },
+    { img: 'assets/photos/p11.jpg', title: 'Прошлый победитель', text: 'Никита выиграл неделю позднего старта. В этот раз можете вы.' },
+  ] },
+  { id: 's-it', label: 'Фиксики', cover: 'assets/photos/p16.jpg', slides: [
+    { title: 'Не работает VPN?', text: 'Перезапустите клиент и проверьте время на компьютере. Не помогло — зовите Фиксиков.', cta: { label: 'Позвать Фиксика', to: 'it' } },
+  ] },
+  { id: 's-awards', label: 'Награды', cover: 'assets/photos/p03.jpg', slides: [
+    { img: 'assets/photos/p03.jpg', title: 'Серебро Tagline', text: 'Кейс SERM для сети клиник — лучшая ORM-кампания года.' },
+    { title: 'Топ-10 по ORM', text: 'Поднялись на четыре позиции в рейтинге Рунета.' },
+  ] },
+];
+
 // ---------- Переговорки ----------
 export const ROOMS = [
   { id: 'everest', name: 'Эверест', floor: 6, cap: 20, eq: ['ТВ 86″', 'ВКС', 'Доска'] },

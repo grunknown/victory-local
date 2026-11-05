@@ -78,11 +78,11 @@ export const deptPath = (id) => {
 
 export function Button({ variant = 'default', size = 'md', className, children, ...rest }) {
   const v = {
-    default: 'bg-accent text-accent-fg hover:brightness-110 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_6px_20px_-10px_var(--glow)]',
+    default: 'bg-accent text-accent-fg hover:bg-white/85',
     light: 'bg-fg text-bg hover:opacity-90',
-    outline: 'border border-border-strong bg-transparent hover:bg-muted text-fg',
+    outline: 'bg-muted hover:bg-row-active text-fg',
     ghost: 'hover:bg-muted text-fg',
-    soft: 'bg-accent-soft text-accent hover:bg-accent hover:text-accent-fg',
+    soft: 'bg-muted text-fg hover:bg-accent hover:text-accent-fg',
   }[variant];
   const s = { sm: 'h-8 px-3 text-[13px] gap-1.5', md: 'h-10 px-4 text-sm gap-2', icon: 'h-9 w-9 justify-center' }[size];
   return (
@@ -93,14 +93,14 @@ export function Button({ variant = 'default', size = 'md', className, children, 
 }
 
 export function Card({ className, children, ...rest }) {
-  return <section className={cx('rounded-2xl border border-border bg-card', className)} {...rest}>{children}</section>;
+  return <section className={cx('rounded-2xl bg-card', className)} {...rest}>{children}</section>;
 }
 
 export function CardHead({ title, action, icon: Icon }) {
   return (
     <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3">
       <h2 className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.01em]">
-        {Icon && <Icon className="h-4 w-4 text-accent" />}
+        {Icon && <Icon className="h-4 w-4 text-muted-fg" />}
         {title}
       </h2>
       {action}
@@ -108,13 +108,15 @@ export function CardHead({ title, action, icon: Icon }) {
   );
 }
 
-export function Coin({ size = 16, spin }) {
+export function Coin({ size = 16 }) {
   return (
-    <svg viewBox="0 0 24 24" width={size} height={size} className={cx('shrink-0', spin && 'coin-spin')} aria-hidden="true">
-      <circle cx="12" cy="12" r="11" fill="var(--accent)" />
-      <circle cx="12" cy="12" r="8.2" fill="none" stroke="var(--accent-fg)" strokeOpacity=".35" strokeWidth="1.2" />
-      <path d="M15.6 7.4 11.2 11.6V9.4l4.4-4.2zM7.6 9.2l1.6 1.6h2.4V9.2z" fill="var(--accent-fg)" transform="translate(-0.4 2.4) scale(1.05)" />
-    </svg>
+    <span className="coin-3d inline-grid shrink-0 place-items-center" style={{ width: size, height: size }} aria-hidden="true">
+      <svg viewBox="0 0 24 24" width={size} height={size}>
+        <circle cx="12" cy="12" r="11" fill="#ffffff" />
+        <circle cx="12" cy="12" r="8.2" fill="none" stroke="#0a0a0a" strokeOpacity=".25" strokeWidth="1.2" />
+        <path d="M15.6 7.4 11.2 11.6V9.4l4.4-4.2zM7.6 9.2l1.6 1.6h2.4V9.2z" fill="#0a0a0a" transform="translate(-0.4 2.4) scale(1.05)" />
+      </svg>
+    </span>
   );
 }
 
@@ -127,7 +129,7 @@ export function burstConfetti(x, y) {
   c.style.width = '100%'; c.style.height = '100%';
   document.body.appendChild(c);
   const g = c.getContext('2d'); g.scale(devicePixelRatio, devicePixelRatio);
-  const colors = ['#6e79d6', '#9aa3ff', '#ffffff', '#c9cdf5', '#4cb782', '#e2a33d'];
+  const colors = ['#ffffff', '#d9d9d9', '#8f8f8f', '#f5f5f5', '#4cb782', '#e2a33d'];
   const parts = Array.from({ length: 140 }, () => ({
     x, y, vx: (Math.random() - 0.5) * 12, vy: -Math.random() * 12 - 4, r: Math.random() * 6 + 3,
     c: colors[(Math.random() * colors.length) | 0], a: Math.random() * Math.PI, va: (Math.random() - 0.5) * 0.3,

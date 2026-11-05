@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  LuHouse, LuNewspaper, LuUsers, LuCalendar, LuHeadset, LuFileText, LuBookOpen, LuShoppingBag, LuSearch, LuBell, LuSun, LuMoon,
+  LuHouse, LuNewspaper, LuUsers, LuCalendar, LuHeadset, LuFileText, LuBookOpen, LuShoppingBag, LuSearch,
   LuChevronRight, LuX, LuMenu, LuCopy, LuCheck, LuPhone, LuMail, LuMapPin, LuCake, LuClock, LuArrowRight, LuPlane, LuBuilding2, LuSend, LuThermometer,
 } from 'react-icons/lu';
 import { MARK, WORD } from './logo.js';
@@ -14,9 +14,14 @@ export const NAV_TOP = [
 ];
 export const NAV_OFFICE = [
   { id: 'rooms', label: 'Переговорки', icon: LuCalendar },
-  { id: 'it', label: 'Заявка в IT', icon: LuHeadset },
+  { id: 'it', label: 'Помощь Фиксиков', icon: LuHeadset },
   { id: 'forms', label: 'Бланки документов', icon: LuFileText },
-  { id: 'kb', label: 'База знаний', icon: LuBookOpen },
+  { id: 'kb', label: 'База знаний', icon: LuBookOpen, children: [
+    { id: 'kb-s-newbie', label: 'Новичку' },
+    { id: 'kb-s-tech', label: 'Тех. инструкции' },
+    { id: 'kb-products', label: 'О продуктах' },
+    { id: 'kb-s-rules', label: 'Регламенты и памятки' },
+  ] },
   { id: 'store', label: 'Магазин мерча', icon: LuShoppingBag },
 ];
 const DIR_HUE = { board: 265, marketing: 230, orm: 200, leadgen: 30, production: 300, clients: 150, vdl: 55, it: 210, people: 340, admin: 100 };
@@ -88,7 +93,7 @@ function GroupLabel({ label, open, onToggle }) {
 }
 
 const DirTile = ({ d }) => (
-  <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] text-[10px] font-semibold" style={{ background: `oklch(0.62 0.12 ${DIR_HUE[d.id] ?? 260} / 0.2)`, color: `oklch(0.78 0.12 ${DIR_HUE[d.id] ?? 260})` }}>
+  <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] bg-white/[0.08] text-[10px] font-semibold text-fg/80">
     {d.short[0]}
   </span>
 );
@@ -96,7 +101,7 @@ const DirTile = ({ d }) => (
 export function Sidebar({ route, go, open, onClose }) {
   const [groups, setGroups] = useState({ people: true, office: true });
   const [openDirs, setOpenDirs] = useState(() => {
-    const d = DEPTS[route.replace('people-', '')];
+    const d = route.startsWith('people-') ? DEPTS[route.slice(7)] : null;
     return d ? { [d.parent || d.id]: true } : {};
   });
   const c = false;
@@ -166,7 +171,34 @@ export function Sidebar({ route, go, open, onClose }) {
             {!c ? <GroupLabel label="Офис и сервисы" open={groups.office} onToggle={() => setGroups((g) => ({ ...g, office: !g.office }))} /> : <div className="mx-2 mb-2 border-t border-border" />}
             {(groups.office || c) && (
               <div className="mt-px flex flex-col gap-px">
-                {NAV_OFFICE.map((n) => <Row key={n.id} icon={n.icon} label={n.label} collapsed={c} active={route === n.id || route.startsWith(n.id + '-')} onClick={() => go(n.id)} />)}
+                {NAV_OFFICE.map((n) => {
+                  const kids = n.children;
+                  const isOpen = openDirs[n.id] ?? (kids && route.startsWith(n.id));
+                  const toggle = () => setOpenDirs((o) => ({ ...o, [n.id]: !isOpen }));
+                  return (
+                    <div key={n.id}>
+                      <Row icon={n.icon} label={n.label} collapsed={c} active={route === n.id || (!kids && route.startsWith(n.id + '-'))} onClick={() => go(n.id)}
+                        trailing={kids && (
+                          <span role="button" tabIndex={0} aria-label={isOpen ? 'Свернуть' : 'Развернуть'}
+                            onClick={(e) => { e.stopPropagation(); toggle(); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); toggle(); } }}
+                            className={cx('-mr-1 grid h-5 w-5 place-items-center rounded text-muted-fg transition-opacity hover:bg-row-hover hover:text-fg', isOpen ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100')}>
+                            <CaretRight className={cx('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-90')} />
+                          </span>
+                        )} />
+                      {kids && isOpen && (
+                        <div className="relative ml-[15px] flex flex-col gap-px py-px pl-[9px] fade">
+                          {kids.map((x) => (
+                            <button key={x.id} onClick={() => go(x.id)}
+                              className={cx('flex h-[28px] items-center rounded-md px-2 text-left text-[13px] transition-colors',
+                                route === x.id ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
+                              <span className="truncate">{x.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -182,31 +214,20 @@ export function useCoins() {
   return coins;
 }
 
-export function Header({ onMenu, onSearch, theme, setTheme, go, openPerson }) {
-  const [bell, setBell] = useState(false);
+export function Header({ onMenu, onSearch, go, openPerson }) {
   const coins = useCoins();
   return (
-    <header className="sticky z-30 flex h-[52px] items-center gap-3 border-b border-border bg-bg/85 backdrop-blur-xl" style={{ top: 'env(safe-area-inset-top, 0px)', paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
+    <header className="sticky z-30 flex h-[56px] items-center gap-3 bg-bg/80 backdrop-blur-xl" style={{ top: 'env(safe-area-inset-top, 0px)', paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
       <button className="rounded-lg p-2 hover:bg-muted lg:hidden" onClick={onMenu} aria-label="Меню"><LuMenu className="h-5 w-5" /></button>
-      <button onClick={onSearch} className="flex h-8 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-border bg-card px-3 text-left text-muted-fg transition-colors hover:border-border-strong md:max-w-[460px]">
+      <button onClick={onSearch} className="flex h-9 min-w-0 flex-1 items-center gap-2.5 rounded-xl bg-card px-3 text-left text-muted-fg transition-colors hover:bg-card-2 md:max-w-[460px]">
         <LuSearch className="h-4 w-4 shrink-0" />
         <span className="flex-1 truncate">Поиск людей, документов, переговорок…</span>
-        <kbd className="hidden rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] font-sans sm:block">Ctrl K</kbd>
+        <kbd className="hidden rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-sans sm:block">Ctrl K</kbd>
       </button>
       <div className="ml-auto flex items-center gap-1.5">
-        <button onClick={() => go('store')} className="hidden h-9 items-center gap-1.5 rounded-xl bg-accent-soft px-3 text-[13px] font-semibold text-accent tnum sm:flex" title="Victory Coin">
-          <Coin size={16} />{coins.toLocaleString('ru')}
+        <button onClick={() => go('store')} className="coin-btn hidden h-9 items-center gap-2 rounded-xl bg-card px-3 text-[13px] font-semibold text-fg tnum transition-colors hover:bg-card-2 sm:flex" title="Victory Coin">
+          <Coin size={18} />{coins.toLocaleString('ru')}
         </button>
-        <div className="relative">
-          <Button variant="ghost" size="icon" onClick={() => setBell((v) => !v)} aria-label="Уведомления">
-            <LuBell className="h-[18px] w-[18px]" />
-          </Button>
-          <span className="pointer-events-none absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent ring-2 ring-bg" />
-          {bell && <Notifications onClose={() => setBell(false)} go={go} />}
-        </div>
-        <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label="Сменить тему">
-          {theme === 'dark' ? <LuSun className="h-[18px] w-[18px]" /> : <LuMoon className="h-[18px] w-[18px]" />}
-        </Button>
         <button onClick={() => openPerson(ME.id)} className="ml-1 flex items-center gap-2.5 rounded-xl py-1 pr-2 pl-1 hover:bg-muted">
           <Avatar p={ME} size={32} />
           <span className="hidden text-left leading-tight xl:block"><span className="block text-[13px] font-medium">{ME.name}</span><span className="block text-[11px] text-muted-fg">{ME.role}</span></span>
@@ -216,36 +237,11 @@ export function Header({ onMenu, onSearch, theme, setTheme, go, openPerson }) {
   );
 }
 
-function Notifications({ onClose, go }) {
-  const ref = useRef();
-  useEffect(() => {
-    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
-    setTimeout(() => document.addEventListener('click', h));
-    return () => document.removeEventListener('click', h);
-  }, []);
-  const items = [
-    { t: 'Новая новость: переезд в штаб-квартиру на Восточной', s: '10 минут назад', to: 'news-n1' },
-    { t: 'Бронь «Эльбрус» на 15:00 подтверждена', s: '1 час назад', to: 'rooms' },
-    { t: 'Ваш заказ «Стикерпак» готов к выдаче у HR', s: 'вчера', to: 'store' },
-  ];
-  return (
-    <div ref={ref} className="pop absolute right-0 mt-2 w-[min(340px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/40">
-      <div className="border-b border-border px-4 py-3 text-[13px] font-semibold">Уведомления</div>
-      {items.map((i) => (
-        <button key={i.t} onClick={() => { go(i.to); onClose(); }} className="flex w-full gap-3 px-4 py-3 text-left hover:bg-muted">
-          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-accent" />
-          <span><span className="block text-[13px]">{i.t}</span><span className="text-[12px] text-muted-fg">{i.s}</span></span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // ---------------- Ctrl+K ----------------
 const ACTIONS = [
   { label: 'Оформить отпуск', hint: 'Бланки документов', to: 'forms', kw: 'отпуск заявление' },
   { label: 'Забронировать переговорку', hint: 'Переговорки', to: 'rooms', kw: 'переговорка бронь встреча' },
-  { label: 'Не работает принтер, VPN или почта', hint: 'Заявка в IT', to: 'it', kw: 'принтер vpn почта пароль it айти компьютер монитор' },
+  { label: 'Не работает принтер, VPN или почта', hint: 'Помощь Фиксиков', to: 'it', kw: 'принтер vpn почта пароль it айти компьютер монитор' },
   { label: 'Справка с места работы, 2-НДФЛ', hint: 'Бланки документов', to: 'forms', kw: 'справка ндфл' },
   { label: 'Новичку: с чего начать', hint: 'База знаний', to: 'kb', kw: 'онбординг новичок памятка адаптация' },
   { label: 'Магазин мерча', hint: 'Victory Coin', to: 'store', kw: 'мерч худи магазин коины' },
@@ -285,7 +281,7 @@ export function CommandPalette({ open, onClose, go, openPerson }) {
   ); };
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 px-4 pt-[12vh] backdrop-blur-sm fade" onClick={onClose}>
-      <div className="pop w-full max-w-[620px] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/60" onClick={(e) => e.stopPropagation()}>
+      <div className="pop w-full max-w-[620px] overflow-hidden rounded-2xl bg-card-2 shadow-2xl shadow-black/60" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-3 border-b border-border px-4">
           <LuSearch className="h-5 w-5 text-muted-fg" />
           <input id="cmdk-input" ref={inputRef} value={q} onChange={(e) => { setQ(e.target.value); setI(0); }} onKeyDown={onKey}
@@ -304,14 +300,14 @@ export function CommandPalette({ open, onClose, go, openPerson }) {
           {depts.length > 0 && <div className="eyebrow px-3 pt-3 pb-1">Отделы</div>}
           {depts.map((d) => 
             row(items.find((x) => x.d === d), d.id, <>
-              <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-muted"><LuBuilding2 className="h-4 w-4 text-accent" /></span>
+              <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-muted"><LuBuilding2 className="h-4 w-4 text-fg/80" /></span>
               <span className="flex-1 text-[14px]">{d.name}</span>
             </>)
           )}
           {actions.length > 0 && <div className="eyebrow px-3 pt-3 pb-1">{q ? 'Действия' : 'Быстрые действия'}</div>}
           {actions.map((a) => 
             row(items.find((x) => x.a === a), a.label, <>
-              <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-accent-soft"><LuArrowRight className="h-4 w-4 text-accent" /></span>
+              <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-muted"><LuArrowRight className="h-4 w-4 text-fg/80" /></span>
               <span className="flex-1 text-[14px]">{a.label}</span>
               <span className="text-[12px] text-muted-fg">{a.hint}</span>
             </>)
@@ -368,7 +364,7 @@ export function PersonSheet({ id, onClose, openPerson, go }) {
   );
   return (
     <div className="fixed inset-0 z-[55] flex justify-end bg-black/50 fade" onClick={onClose}>
-      <aside className="sheet relative h-full w-full max-w-[440px] overflow-y-auto border-l border-border bg-card" onClick={(e) => e.stopPropagation()}>
+      <aside className="sheet relative h-full w-full max-w-[440px] overflow-y-auto bg-card" onClick={(e) => e.stopPropagation()}>
         <div className="relative h-32 overflow-hidden cover-bg">
           <div className="plates"><i style={{ left: '30%', top: '-90%' }} /><i style={{ left: '48%', top: '-70%' }} /><i style={{ left: '66%', top: '-50%' }} /></div>
           <button onClick={onClose} className="absolute top-3 right-3 rounded-full bg-black/40 p-2 text-white hover:bg-black/60" aria-label="Закрыть"><LuX className="h-4 w-4" /></button>

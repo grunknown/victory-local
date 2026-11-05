@@ -33,4 +33,6 @@ const html = `<!doctype html>
 fs.mkdirSync('dist/assets/photos', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
 for (const f of fs.readdirSync('assets/photos')) fs.copyFileSync('assets/photos/' + f, 'dist/assets/photos/' + f);
+fs.mkdirSync('dist/assets/videos', { recursive: true });
+for (const f of fs.readdirSync('assets/videos')) fs.copyFileSync('assets/videos/' + f, 'dist/assets/videos/' + f);
 console.log('js', (js.length / 1024 | 0) + 'KB', 'css', (css.length / 1024 | 0) + 'KB', 'html', (html.length / 1024 | 0) + 'KB');

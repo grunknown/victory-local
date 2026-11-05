@@ -6,6 +6,7 @@ import {
 } from 'react-icons/lu';
 import { NEWS, NEWBIES, ME, TODAY, DEPTS, birthdaysAhead, EVENTS } from './data.js';
 import { cx, Avatar, Card, CardHead, Button, fmtDay, fmtShort, relDay, weekday, daysBetween, plural, burstConfetti, toast, Coin } from './ui.jsx';
+import { StoriesRow, VideoRow } from './media.jsx';
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -76,14 +77,15 @@ export function Home({ go, openPerson }) {
         <div className="text-[13px] text-muted-fg first-letter:uppercase">{weekday(TODAY)}, {fmtDay(TODAY)}</div>
         <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">{greeting()}, {ME.first}</h1>
       </div>
+      <div className="rise" style={{ '--i': 1 }}><StoriesRow go={go} /></div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
         <div className="flex min-w-0 flex-col gap-4 xl:col-span-8">
-          <button onClick={() => go(`news-${featured.id}`)} className="group rise relative overflow-hidden rounded-2xl border border-border text-left transition-all duration-300 hover:-translate-y-1 hover:border-border-hover hover:shadow-[0_24px_60px_-28px_rgba(0,0,0,0.9),0_0_0_1px_rgba(110,121,214,0.2)]" style={{ '--i': 1 }}>
+          <button onClick={() => go(`news-${featured.id}`)} className="group rise relative overflow-hidden rounded-3xl bg-card text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9)]" style={{ '--i': 1 }}>
             <div className="absolute inset-0"><Media images={featured.images} kind="hero" className="h-full" /></div>
             <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/55 to-transparent" />
             <div className="relative flex min-h-[360px] flex-col justify-end p-6 sm:p-8">
-              <span className="w-fit rounded-full border border-border-strong bg-bg/60 px-2.5 py-1 text-[11px] font-medium backdrop-blur">{featured.rubric}</span>
+              <span className="w-fit rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium backdrop-blur">{featured.rubric}</span>
               <h2 className="display mt-4 max-w-[640px] text-[clamp(22px,2.6vw,32px)]">{featured.title}</h2>
               <p className="mt-3 max-w-[600px] text-[15px] text-fg/70">{featured.lead}</p>
               <div className="mt-5 flex flex-wrap items-center gap-4 text-[13px] text-muted-fg">
@@ -97,10 +99,11 @@ export function Home({ go, openPerson }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {rest.slice(0, 4).map((n, i) => <NewsCard key={n.id} n={n} i={i + 2} go={go} />)}
           </div>
-          <button onClick={() => go('blog')} className="group flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card text-[14px] font-medium transition-all hover:border-border-hover hover:bg-muted">
+          <button onClick={() => go('blog')} className="group flex h-11 items-center justify-center gap-2 rounded-xl bg-card text-[14px] font-medium transition-all hover:bg-card-2">
             Показать ещё <span className="text-muted-fg tnum">{NEWS.length - 5}</span>
             <LuArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </button>
+          <div className="mt-4"><VideoRow title="Видео" /></div>
           <Newbies openPerson={openPerson} />
         </div>
 
@@ -120,7 +123,7 @@ function Birthdays({ openPerson }) {
   const soon = all.filter((b) => b.inDays > 0);
   return (
     <Card className="rise" style={{ '--i': 2 }}>
-      <CardHead title="Дни рождения" action={<span className="rounded-full bg-accent-soft px-2.5 py-1 text-[12px] font-medium text-accent">Сегодня, {fmtDay(TODAY)}</span>} />
+      <CardHead title="Дни рождения" action={<span className="rounded-full bg-muted px-2.5 py-1 text-[12px] font-medium text-fg/80">Сегодня, {fmtDay(TODAY)}</span>} />
       <div className="flex flex-col gap-1 px-3">
         {today.map(({ p }) => (
           <button key={p.id} onClick={() => openPerson(p.id)} className="flex items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-muted">
@@ -129,11 +132,10 @@ function Birthdays({ openPerson }) {
               <span className="block truncate text-[14px] font-medium">{p.name}</span>
               <span className="block truncate text-[12px] text-muted-fg">{p.role}</span>
             </span>
-            <span className="text-[18px]" aria-hidden="true">🎂</span>
           </button>
         ))}
       </div>
-      <div className="mt-3 border-t border-border px-5 pt-4 text-[14px] font-semibold text-fg">На этой неделе</div>
+      <div className="mt-3 px-5 pt-4 text-[14px] font-semibold text-fg">На этой неделе</div>
       <ul className="px-3 pb-3">
         {soon.slice(0, 5).map(({ p, date, inDays }) => (
           <li key={p.id}>
@@ -156,7 +158,7 @@ function Events() {
   return (
     <Card className="rise" style={{ '--i': 3 }}>
       <CardHead title="Ближайшие события" />
-      <div className="group relative mx-5 overflow-hidden rounded-xl border border-border cover-bg p-4">
+      <div className="group relative mx-5 overflow-hidden rounded-2xl cover-bg p-4">
         <div className="pointer-events-none absolute -top-16 -right-20 h-40 w-64 opacity-80"><Plates kind="award" /></div>
         <div className="relative">
           <div className="flex items-baseline gap-2"><span className="text-[40px] leading-none font-semibold tnum">{d}</span><span className="text-[13px] text-muted-fg">{plural(d, 'день', 'дня', 'дней')} до</span></div>
@@ -167,8 +169,8 @@ function Events() {
       </div>
       <ul className="px-5 py-3">
         {rest.map((e) => (
-          <li key={e.title} className="-mx-2 flex cursor-default items-center gap-3 rounded-xl border-t border-border px-2 py-3 transition-colors first:border-0 hover:border-transparent hover:bg-muted">
-            <span className="w-11 shrink-0 rounded-lg border border-border bg-card-2 py-1 text-center leading-none">
+          <li key={e.title} className="-mx-2 flex cursor-default items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-muted">
+            <span className="w-11 shrink-0 rounded-lg bg-muted py-1 text-center leading-none">
               <span className="block text-[17px] font-semibold tnum">{e.date.getDate()}</span>
               <span className="text-[10px] text-muted-fg uppercase">{fmtShort(e.date).split(' ')[1]}</span>
             </span>
@@ -221,11 +223,12 @@ export function Blog({ go }) {
         </div>
         <div className="flex flex-wrap gap-1.5">
           {rubrics.map((x) => (
-            <button key={x} onClick={() => setR(x)} className={cx('h-8 rounded-full border px-3 text-[13px] transition-colors', r === x ? 'border-border-strong bg-muted text-fg' : 'border-border text-muted-fg hover:text-fg')}>{x}</button>
+            <button key={x} onClick={() => setR(x)} className={cx('h-8 rounded-full px-3 text-[13px] transition-colors', r === x ? 'bg-accent text-accent-fg' : 'bg-card text-muted-fg hover:text-fg')}>{x}</button>
           ))}
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {r === 'Все' && <div className="mt-8"><VideoRow title="Видео" /></div>}
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {list.map((n, i) => <NewsCard key={n.id} n={n} i={i} go={go} />)}
       </div>
     </div>
@@ -235,11 +238,11 @@ export function Blog({ go }) {
 function NewsCard({ n, i, go }) {
   return (
     <button onClick={() => go(`news-${n.id}`)} style={{ '--i': i }}
-      className="group rise flex flex-col overflow-hidden rounded-2xl border border-border bg-card text-left transition-all duration-300 hover:-translate-y-1 hover:border-border-hover hover:bg-card-2 hover:shadow-[0_22px_50px_-24px_rgba(0,0,0,0.85),0_0_0_1px_rgba(110,121,214,0.18)]">
+      className="group rise flex flex-col overflow-hidden rounded-2xl bg-card text-left transition-all duration-300 hover:-translate-y-1 hover:bg-card-2 hover:shadow-[0_24px_50px_-26px_rgba(0,0,0,0.9)]">
       <Media images={n.images} kind={n.cover} className="aspect-[16/10]" />
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center gap-2 text-[11px]">
-          <span className="font-medium text-accent">{n.rubric}</span>
+          <span className="font-medium text-muted-fg">{n.rubric}</span>
           
         </div>
         <h3 className="mt-1.5 text-[15px] leading-snug font-semibold text-balance">{n.title}</h3>
@@ -261,23 +264,23 @@ export function NewsPage({ id, go }) {
   return (
     <article className="mx-auto max-w-[860px]">
       <button onClick={() => go('blog')} className="mb-4 inline-flex items-center gap-1 text-[13px] text-muted-fg hover:text-fg"><LuChevronLeft /> В блог</button>
-      <div className="flex items-center gap-2 text-[12px]"><span className="font-medium text-accent">{n.rubric}</span></div>
+      <div className="flex items-center gap-2 text-[12px]"><span className="font-medium text-muted-fg">{n.rubric}</span></div>
       <h1 className="display mt-3 text-[clamp(26px,3.6vw,40px)]">{n.title}</h1>
       <div className="mt-3 flex flex-wrap gap-4 text-[13px] text-muted-fg"><span>{fmtDay(n.date)}</span><span className="inline-flex items-center gap-1"><LuClock className="h-3.5 w-3.5" />{n.mins} мин чтения</span><span>Команда HR</span></div>
       {n.images?.length
         ? <div className={cx('mt-6 grid gap-1 overflow-hidden rounded-2xl', n.images.length === 1 ? 'grid-cols-1' : 'grid-cols-3')}>
             {n.images.map((src) => <img key={src} src={src} alt="" className="aspect-square w-full object-cover" />)}
           </div>
-        : <div className="group relative mt-6 h-[260px] overflow-hidden rounded-2xl border border-border cover-bg"><Plates kind={n.cover} /></div>}
+        : <div className="group relative mt-6 h-[260px] overflow-hidden rounded-2xl cover-bg"><Plates kind={n.cover} /></div>}
       <div className="mx-auto mt-8 max-w-[680px]">
         <p className="text-[18px] leading-relaxed">{n.lead}</p>
         {n.body.map(([t, text], i) =>
           t === 'h' ? <h2 key={i} className="display mt-8 text-[22px]">{text}</h2>
-          : t === 'q' ? <blockquote key={i} className="my-6 border-l-2 border-accent pl-5 text-[17px] text-fg/85">{text}</blockquote>
+          : t === 'q' ? <blockquote key={i} className="my-6 border-l-2 border-white/40 pl-5 text-[17px] text-fg/85">{text}</blockquote>
           : <p key={i} className="mt-4 text-[16px] leading-[1.7] text-fg/85">{text}</p>)}
-        <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-border pt-6">
+        <div className="mt-10 flex flex-wrap items-center gap-2 pt-6">
           {Object.entries(n.reactions).concat([['👍', 0]]).slice(0, 4).map(([e, c]) => (
-            <button key={e} onClick={() => setMine(mine === e ? null : e)} className={cx('inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-[14px] tnum transition-colors', mine === e ? 'border-accent bg-accent-soft' : 'border-border hover:bg-muted')}>
+            <button key={e} onClick={() => setMine(mine === e ? null : e)} className={cx('inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[14px] tnum transition-colors', mine === e ? 'bg-white/20' : 'bg-card hover:bg-muted')}>
               {e} {c + (mine === e ? 1 : 0)}
             </button>
           ))}
@@ -285,7 +288,7 @@ export function NewsPage({ id, go }) {
         <h2 className="mt-12 mb-4 text-[17px] font-semibold tracking-[-0.01em]">Другие новости</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {others.map((o) => (
-            <button key={o.id} onClick={() => go(`news-${o.id}`)} className="group overflow-hidden rounded-2xl border border-border bg-card text-left hover:border-border-strong">
+            <button key={o.id} onClick={() => go(`news-${o.id}`)} className="group overflow-hidden rounded-2xl bg-card text-left hover:bg-card-2">
               <Media images={o.images} kind={o.cover} className="aspect-[16/10]" />
               <div className="p-4">
                 <span className="text-[11px] font-medium text-accent">{o.rubric}</span>
