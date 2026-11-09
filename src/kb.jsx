@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   LuScale, LuStickyNote, LuLaptop, LuNetwork, LuPalette, LuBriefcase, LuPresentation, LuSprout, LuWrench,
+  LuHeadphones, LuRocket, LuCog, LuMegaphone, LuStar, LuBuilding2, LuMapPin, LuShieldCheck, LuKeyRound,
   LuVideo, LuClock, LuChevronLeft, LuChevronRight, LuX, LuSearch, LuArrowRight, LuPlay, LuCheck, LuInfo,
 } from 'react-icons/lu';
 import { DIRECTIONS, DEPTS, byId, deptPeople, PEOPLE, WELCOME_VIDEO } from './data.js';
@@ -221,6 +222,19 @@ export const KB_SECTIONS = [
   { id: 'rules', title: 'Регламенты и памятки', lead: 'Распорядок, информационная безопасность, отпуск, командировки и брендбук.' },
 ];
 const KSEC = Object.fromEntries(KB_SECTIONS.map((x) => [x.id, x]));
+// Иконки-призраки на текстурных плитках. 3D-иконки из Nano Banana кладутся в assets/icons/<name>.png
+// (имена — в docs/visual-prompts.md, раздел 7); пока файла нет, рисуется контурная иконка.
+const SEC_ICON = { newbie: LuSprout, tech: LuLaptop, products: LuBriefcase, rules: LuScale };
+const PRODUCT_ICON = { orm: LuMapPin, 'orm-service': LuStar, performance: LuRocket, leads: LuHeadphones, digital: LuCog, seo: LuMegaphone, vdl: LuBuilding2 };
+const KIT_ICON = { sales: LuBriefcase, marketing: LuMegaphone, onboarding: LuSprout };
+const STEP_ICON = { routine: LuScale, security: LuShieldCheck, laptop: LuLaptop, vpn: LuKeyRound, products: LuBriefcase };
+function Ghost({ icon: I, name, size = 150, className }) {
+  const [noImg, setNoImg] = useState(false);
+  const pos = { right: -size * 0.14, bottom: -size * 0.18, width: size, height: size };
+  // 3D-иконка из assets/icons/<name>.png, если её положили; иначе — контурная иконка
+  return name && !noImg ? <img src={`assets/icons/${name}.png`} alt="" onError={() => setNoImg(true)} className={cx('tex-icon object-contain', className)} style={pos} />
+    : <I className={cx('tex-icon', className)} style={pos} strokeWidth={1.1} aria-hidden="true" />;
+}
 const RULE_SECS = ['rules', 'memos', 'brand'];
 
 // Какой пункт меню базы знаний подсвечивать для текущего адреса
@@ -245,16 +259,19 @@ function KbSection({ id, go, children }) {
   const foundProducts = query ? PRODUCTS.filter((p) => (p.name + ' ' + p.short + ' ' + p.tag).toLowerCase().includes(query)) : [];
   return (
     <div className="mx-auto max-w-[1180px]">
+      <div className="tex rounded-3xl bg-card px-6 py-7 sm:px-8 sm:py-9">
+      <Ghost icon={SEC_ICON[id]} name={'section-' + id} size={230} />
       <div className="text-[13px] text-muted-fg">База знаний</div>
       <div className="mt-1.5 flex flex-wrap items-center justify-between gap-4">
         <h1 className="display text-[clamp(28px,3.6vw,40px)]">{sec.title}</h1>
-        <label className="flex h-10 w-full cursor-text items-center gap-2.5 rounded-xl bg-card px-3.5 text-muted-fg transition-colors hover:bg-card-2 focus-within:bg-card-2 focus-within:text-fg sm:w-[300px]">
+        <label className="flex h-10 w-full cursor-text items-center gap-2.5 rounded-xl bg-muted/80 px-3.5 text-muted-fg backdrop-blur transition-colors hover:bg-muted focus-within:bg-muted focus-within:text-fg sm:w-[300px]">
           <LuSearch className="h-4 w-4 shrink-0" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по базе знаний" className="no-ring min-w-0 flex-1 bg-transparent text-[13.5px] text-fg outline-none placeholder:text-muted-fg" />
           {q && <button onClick={() => setQ('')} aria-label="Очистить"><LuX className="h-3.5 w-3.5" /></button>}
         </label>
       </div>
-      <p className="mt-3 max-w-[640px] text-[15.5px] text-muted-fg">{sec.lead}</p>
+      <p className="mt-3 max-w-[560px] text-[15.5px] text-muted-fg">{sec.lead}</p>
+      </div>
       {query ? (
         <div className="mt-8">
           <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Найдено: {found.length + foundProducts.length}</h2>
@@ -316,7 +333,8 @@ function NewbiePage({ go }) {
       <p className="mt-1 text-[14px] text-muted-fg">Пять шагов на первую неделю</p>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {FIRST_STEPS.map(([id, label], i) => (
-          <button key={id} onClick={() => go('kb-' + id)} className="group flex min-h-[132px] flex-col rounded-2xl bg-card p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-card-2">
+          <button key={id} onClick={() => go('kb-' + id)} className="tex group flex min-h-[150px] flex-col rounded-2xl bg-card p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:bg-card-2">
+            <Ghost icon={STEP_ICON[id]} name={'step-' + id} size={96} />
             <span className="tnum text-[13px] text-muted-fg">{String(i + 1).padStart(2, '0')}</span>
             <span className="mt-2 text-[15px] leading-snug font-medium">{label}</span>
             <LuArrowRight className="mt-auto h-4 w-4 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-fg" />
@@ -394,7 +412,8 @@ function TechPage({ go }) {
       <div className="mt-8 rounded-3xl bg-card p-2">
         {RECENT.filter((a) => a.sec === 'it').map((a) => <ArticleRow key={a.id} a={a} go={go} />)}
       </div>
-      <button onClick={() => go('it')} className="mt-4 flex w-full items-center gap-4 rounded-3xl bg-card p-5 text-left transition-colors hover:bg-card-2">
+      <button onClick={() => go('it')} className="tex mt-4 flex w-full items-center gap-4 rounded-3xl bg-card p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:bg-card-2">
+        <Ghost icon={LuWrench} name="fixiki" size={110} />
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-black"><LuWrench className="h-5 w-5" /></span>
         <span className="flex-1"><span className="block text-[15px] font-medium">Не нашли ответ?</span><span className="block text-[13.5px] text-muted-fg">Позовите Фиксиков — подойдут к вашему месту</span></span>
         <LuArrowRight className="h-4 w-4 text-faint" />
@@ -421,7 +440,8 @@ function RulesPage({ go }) {
 
 function ProductCard({ p, go, big }) {
   return (
-    <button onClick={() => go('kb-p-' + p.id)} className={cx('group flex flex-col rounded-2xl text-left transition-all duration-200 hover:-translate-y-0.5', big ? 'bg-card p-5 hover:bg-card-2' : 'bg-card-2 p-4 hover:bg-muted')}>
+    <button onClick={() => go('kb-p-' + p.id)} className={cx('tex group flex min-h-[260px] flex-col rounded-2xl text-left transition-all duration-300 hover:-translate-y-1', big ? 'bg-card p-5 hover:bg-card-2' : 'bg-card-2 p-4 hover:bg-muted')}>
+      <Ghost icon={PRODUCT_ICON[p.id] || LuBriefcase} name={'product-' + p.id} size={big ? 170 : 120} />
       <span className="text-[12px] text-muted-fg">{p.tag}</span>
       <span className={cx('mt-1 font-semibold', big ? 'text-[19px]' : 'text-[15px]')}>{p.name}</span>
       <span className={cx('mt-1.5 text-muted-fg', big ? 'text-[14px]' : 'line-clamp-2 text-[13px]')}>{p.short}</span>
@@ -443,7 +463,8 @@ function ProductsPage({ go }) {
       <h2 className="mt-10 text-[17px] font-semibold tracking-[-0.01em]">Материалы по ролям</h2>
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
         {ROLE_KITS.map((k) => (
-          <div key={k.id} className="rounded-2xl bg-card p-5">
+          <div key={k.id} className="tex rounded-2xl bg-card p-5 transition-colors duration-300 hover:bg-card-2">
+            <Ghost icon={KIT_ICON[k.id]} name={'kit-' + k.id} size={140} />
             <div className="text-[16px] font-semibold">{k.title}</div>
             <div className="-mx-2 mt-3 flex flex-col">
               {k.items.map((x) => (

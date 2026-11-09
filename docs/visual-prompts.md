@@ -216,10 +216,83 @@ Photorealistic, no text other than described, no extra props, no watermark.
 
 ---
 
+## 7. 3D-иконки для базы знаний — 21 штука, 1:1
+
+**Где видны:** плитки базы знаний (шапки разделов, «С чего начать», материалы по ролям, продукты, кнопка Фиксиков). Стиль — как в меню продуктов на victoryagency.ru: матовые чёрные объёмные объекты на чёрном.
+**Куда класть:** `assets/icons/<имя>.png`, 1024×1024. Портал подхватит файл сам; пока файла нет, на плитке стоит контурная иконка.
+**Фон:** чисто чёрный, не прозрачный. Портал накладывает картинку режимом «осветление», поэтому чёрный фон растворяется в плитке.
+
+Совет: сначала сгенерируйте одну иконку, добейтесь нужного вида, а дальше в том же чате пишите «same style, now: {объект}». Так серия будет ровной.
+
+### Базовый промт
+
+```
+A single 3D icon of {ОБЪЕКТ}, in the style of premium dark UI illustrations.
+
+Material: matte black soft-touch plastic with subtle satin highlights on the edges, very slight bevel, no color.
+Lighting: soft studio key light from the top-left, a faint cool-white rim light on the right edge, gentle contact shadow under the object.
+Background: pure solid black #000000, perfectly uniform, no gradient, no floor texture, no vignette.
+Composition: object centered, three-quarter view slightly from above, about 60% of the frame, generous empty space around.
+Square 1:1, 1024x1024, photorealistic 3D render, minimal and clean.
+No text, no letters, no logos, no watermark.
+```
+
+### Список (имя файла → объект)
+
+Разделы базы знаний:
+
+| Файл | Объект |
+|---|---|
+| `section-newbie.png` | `a small sprout with two leaves growing from a round pot` |
+| `section-tech.png` | `an open laptop with a blank dark screen` |
+| `section-products.png` | `a closed briefcase with a handle` |
+| `section-rules.png` | `balanced scales of justice` |
+
+Продукты:
+
+| Файл | Объект |
+|---|---|
+| `product-orm.png` | `a map location pin with a round hole in the middle` |
+| `product-orm-service.png` | `a speech bubble with a five-pointed star inside` |
+| `product-performance.png` | `a rocket flying diagonally upward` |
+| `product-leads.png` | `over-ear headphones with a microphone arm` |
+| `product-digital.png` | `a gear with a check mark in the center` |
+| `product-seo.png` | `a megaphone` |
+| `product-vdl.png` | `a construction crane next to a building block` |
+
+Материалы по ролям:
+
+| Файл | Объект |
+|---|---|
+| `kit-sales.png` | `two hands in a handshake` |
+| `kit-marketing.png` | `a round target with an arrow in the center` |
+| `kit-onboarding.png` | `a paper plane` |
+
+Шаги «С чего начать»:
+
+| Файл | Объект |
+|---|---|
+| `step-routine.png` | `a round wall clock` |
+| `step-security.png` | `a shield with a check mark` |
+| `step-laptop.png` | `a closed laptop with a small key card on top` |
+| `step-vpn.png` | `a key` |
+| `step-products.png` | `an open cardboard box with a soft glow inside` |
+
+Фиксики:
+
+| Файл | Объект |
+|---|---|
+| `fixiki.png` | `a wrench crossed with a screwdriver` |
+
+> Текстуру (точечную сетку) генерировать не нужно: она нарисована в коде и реагирует на курсор.
+
+---
+
 ## Порядок работы
 
 1. Портреты (раздел 1) — без них не заполнить ни сотрудников, ни главную.
 2. Сторис и обложки видео (разделы 2 и 4) — то, что видно сразу на главной.
 3. Обложки новостей и мерч (разделы 3 и 5).
+4. 3D-иконки для базы знаний (раздел 7).
 
 Когда картинки будут готовы, присылайте их в чат или кладите в папки из таблиц — подключу к порталу.

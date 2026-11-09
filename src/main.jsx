@@ -12,6 +12,7 @@ import { DEPTS } from './data.js';
 import { LuCheck } from 'react-icons/lu';
 import { cx } from './ui.jsx';
 import { installCaret } from './caret.js';
+import { installTexFx } from './fx.js';
 
 function Toaster() {
   const [items, setItems] = useState([]);
@@ -106,4 +107,5 @@ function App() {
 }
 
 installCaret();
+installTexFx();
 createRoot(document.getElementById('root')).render(<App />);
