@@ -28,7 +28,8 @@ export function installCaret() {
     if (x < r.left - 1 || x > r.right + 1) return hide();
     bar.style.display = 'block';
     bar.style.height = h + 'px';
-    bar.style.transform = `translate(${Math.round(x * 2) / 2}px, ${Math.round(r.top + (r.height - h) / 2)}px)`;
+    // полоска центрируется по границе между символами, чтобы не наезжать на первую букву
+    bar.style.transform = `translate(${Math.round((x - 1.25) * 2) / 2}px, ${Math.round(r.top + (r.height - h) / 2)}px)`;
     // каретка не мигает, пока по ней печатают
     bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
   };
@@ -43,5 +44,7 @@ export function installCaret() {
   document.addEventListener('focusout', (e) => { if (e.target === el) { el.classList.remove('vl-caret'); el = null; hide(); } });
   ['input', 'keydown', 'keyup', 'pointerup', 'selectionchange'].forEach((ev) => document.addEventListener(ev, later));
   addEventListener('scroll', later, true);
+  // окна и панели появляются с анимацией: пересчитываем место каретки, когда она закончится
+  ['animationend', 'transitionend'].forEach((ev) => addEventListener(ev, later, true));
   addEventListener('resize', later);
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LuChevronLeft, LuChevronRight, LuUsers, LuVideo, LuTv, LuPresentation, LuX, LuPlus, LuSearch, LuTrash2, LuClock, LuMapPin } from 'react-icons/lu';
 import { ROOMS, PEOPLE, ME, TODAY, search, byId } from './data.js';
-import { cx, Avatar, Button, fmtDay, weekday, toast } from './ui.jsx';
+import { cx, Avatar, Button, Select, fmtDay, weekday, toast } from './ui.jsx';
 
 // Переговорки: «Сейчас» (статус каждой комнаты) → расписание дня (комнаты × время, бронь протягиванием) → мои брони.
 
@@ -279,27 +279,23 @@ function BookingModal({ draft, bookings, onClose, onSave, onCancel }) {
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-room">Переговорка</label>
-            <select id="bk-room" value={b.room} onChange={(e) => set('room', e.target.value)} className={cx(field, 'mt-1')}>
-              {ROOMS.map((r) => <option key={r.id} value={r.id}>{r.name} · {r.floor} этаж</option>)}
-            </select>
+            <Select id="bk-room" className="mt-1" value={b.room} onChange={(v) => set('room', v)}
+              options={ROOMS.map((r) => ({ value: r.id, label: `${r.name} · ${r.floor} этаж` }))} />
           </div>
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-day">День</label>
-            <select id="bk-day" value={b.day} onChange={(e) => set('day', +e.target.value)} className={cx(field, 'mt-1')}>
-              {DAYS.map((d, i) => <option key={i} value={i}>{i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : fmtDay(d)}</option>)}
-            </select>
+            <Select id="bk-day" className="mt-1" value={b.day} onChange={(v) => set('day', v)}
+              options={DAYS.map((d, i) => ({ value: i, label: i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : fmtDay(d) }))} />
           </div>
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-start">Начало</label>
-            <select id="bk-start" value={b.start} onChange={(e) => { const s = +e.target.value; setB((x) => ({ ...x, start: s, end: Math.max(x.end, s + 1) })); }} className={cx(field, 'mt-1 tnum')}>
-              {Array.from({ length: SLOTS }, (_, i) => <option key={i} value={i}>{slotLabel(i)}</option>)}
-            </select>
+            <Select id="bk-start" className="mt-1" buttonClassName="tnum" value={b.start} onChange={(s) => setB((x) => ({ ...x, start: s, end: Math.max(x.end, s + 1) }))}
+              options={Array.from({ length: SLOTS }, (_, i) => ({ value: i, label: slotLabel(i) }))} />
           </div>
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-end">Конец</label>
-            <select id="bk-end" value={b.end} onChange={(e) => set('end', +e.target.value)} className={cx(field, 'mt-1 tnum')}>
-              {Array.from({ length: SLOTS }, (_, i) => i + 1).filter((i) => i > b.start).map((i) => <option key={i} value={i}>{slotLabel(i)}</option>)}
-            </select>
+            <Select id="bk-end" className="mt-1" buttonClassName="tnum" value={b.end} onChange={(v) => set('end', v)}
+              options={Array.from({ length: SLOTS }, (_, i) => i + 1).filter((i) => i > b.start).map((i) => ({ value: i, label: slotLabel(i) }))} />
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2 text-[12.5px]">

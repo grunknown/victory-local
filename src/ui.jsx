@@ -1,5 +1,6 @@
 import React from 'react';
 import { DEPTS, TODAY } from './data.js';
+import { LuChevronDown, LuCheck } from 'react-icons/lu';
 
 export const cx = (...a) => a.filter(Boolean).join(' ');
 
@@ -151,4 +152,67 @@ export function copyText(text, onDone) {
   try {
     navigator.clipboard.writeText(text).then(done, done);
   } catch { done(); }
+}
+
+// Выпадающий список в стиле портала вместо системного <select>: тёмный, с прокруткой к выбранному,
+// управляется с клавиатуры (стрелки, Enter, Esc). Если внизу мало места — открывается вверх.
+export function Select({ id, value, options, onChange, className, buttonClassName }) {
+  const [open, setOpen] = React.useState(false);
+  const [active, setActive] = React.useState(0);
+  const [up, setUp] = React.useState(false);
+  const wrap = React.useRef(); const list = React.useRef();
+  const idx = Math.max(0, options.findIndex((o) => o.value === value));
+  const cur = options[idx];
+  const show = () => {
+    const r = wrap.current.getBoundingClientRect();
+    setUp(innerHeight - r.bottom < 260 && r.top > innerHeight - r.bottom);
+    setActive(idx); setOpen(true);
+  };
+  const pick = (i) => { onChange(options[i].value); setOpen(false); wrap.current.querySelector('button')?.focus(); };
+  React.useEffect(() => {
+    if (!open) return;
+    list.current?.children[active]?.scrollIntoView({ block: 'nearest' });
+  }, [open, active]);
+  React.useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (!wrap.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('pointerdown', h);
+    return () => document.removeEventListener('pointerdown', h);
+  }, [open]);
+  const onKey = (e) => {
+    if (!open) {
+      if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) { e.preventDefault(); show(); }
+      return;
+    }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setOpen(false); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(options.length - 1, a + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(0, a - 1)); }
+    else if (e.key === 'Home') { e.preventDefault(); setActive(0); }
+    else if (e.key === 'End') { e.preventDefault(); setActive(options.length - 1); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(active); }
+    else if (e.key === 'Tab') setOpen(false);
+  };
+  return (
+    <div ref={wrap} className={cx('relative', className)} onKeyDown={onKey}>
+      <button type="button" id={id} aria-haspopup="listbox" aria-expanded={open} onClick={() => (open ? setOpen(false) : show())}
+        className={cx('flex h-9 w-full items-center justify-between gap-2 rounded-lg bg-muted px-3 text-left text-[13.5px] text-fg transition-colors no-ring hover:bg-row-active focus-visible:bg-row-active', open && 'bg-row-active', buttonClassName)}>
+        <span className="truncate">{cur?.label}</span>
+        <LuChevronDown className={cx('h-4 w-4 shrink-0 text-muted-fg transition-transform', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <ul ref={list} role="listbox" aria-labelledby={id}
+          className={cx('pop absolute right-0 left-0 z-30 max-h-60 overflow-y-auto rounded-xl bg-card-2 p-1 shadow-2xl shadow-black/70', up ? 'bottom-full mb-1' : 'top-full mt-1')}>
+          {options.map((o, i) => (
+            <li key={String(o.value)} role="option" aria-selected={i === idx}
+              onPointerMove={() => active !== i && setActive(i)} onClick={() => pick(i)}
+              className={cx('flex h-9 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-[13.5px] tnum',
+                i === active ? 'bg-row-active text-fg' : 'text-fg/85', i === idx && 'font-medium')}>
+              <span className="truncate">{o.label}</span>
+              {i === idx && <LuCheck className="h-3.5 w-3.5 shrink-0 text-fg" />}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
