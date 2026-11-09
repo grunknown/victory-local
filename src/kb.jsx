@@ -468,9 +468,9 @@ function ProductsPage({ go }) {
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
         {ROLE_KITS.map((k) => (
           <div key={k.id} className="tex rounded-2xl bg-card p-5 transition-colors duration-300 hover:bg-card-2">
-            <Ghost icon={KIT_ICON[k.id]} name={'kit-' + k.id} size={140} />
+            <Ghost icon={KIT_ICON[k.id]} name={'kit-' + k.id} size={120} />
             <div className="text-[16px] font-semibold">{k.title}</div>
-            <div className="-mx-2 mt-3 flex flex-col">
+            <div className="-ml-2 mt-3 mr-20 flex flex-col">
               {k.items.map((x) => (
                 <button key={x} onClick={() => (kitLinks[x] ? go(kitLinks[x]) : toast('Материал готовится', `«${x}» появится в следующей итерации`))}
                   className="group/k flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[14px] text-fg/85 hover:bg-row-hover hover:text-fg">
