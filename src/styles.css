@@ -174,32 +174,21 @@ input.vl-caret { caret-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .vl-caret-bar { animation: none !important; } }
 
 /* ---------- Текстурные плитки (как на victoryagency.ru) ----------
-   .tex — точечная сетка в углу плитки; при наведении по точкам идёт световое пятно за курсором
-   (координаты --mx/--my ставит src/fx.js), а иконка-призрак .tex-icon всплывает и наклоняется. */
+   .tex — точечная сетка только в правом нижнем углу, у иконки, подальше от текста.
+   При наведении сетка проявляется сильнее, а иконка .tex-icon становится ярче. Ничего не двигается
+   и не светит под текст, поэтому контраст текста одинаковый в покое и при наведении. */
 .tex { position: relative; isolation: isolate; overflow: hidden; }
 .tex::before, .tex::after {
   content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-size: 7px 7px; background-position: center;
+  background-size: 7px 7px; background-position: right bottom;
+  -webkit-mask-image: radial-gradient(70% 85% at 100% 100%, #000 0%, transparent 72%);
+          mask-image: radial-gradient(70% 85% at 100% 100%, #000 0%, transparent 72%);
 }
-.tex::before {
-  background-image: radial-gradient(rgba(255,255,255,.13) 1px, transparent 1.5px);
-  -webkit-mask-image: radial-gradient(130% 100% at 100% 100%, #000 0%, transparent 65%);
-          mask-image: radial-gradient(130% 100% at 100% 100%, #000 0%, transparent 65%);
-  transition: opacity .5s ease;
-}
-.tex::after {
-  background-image: radial-gradient(rgba(255,255,255,.32) 1px, transparent 1.5px), radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.07), transparent 70%);
-  background-size: 7px 7px, 100% 100%;
-  -webkit-mask-image: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), #000, transparent 70%);
-          mask-image: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), #000, transparent 70%);
-  opacity: 0; transition: opacity .35s ease;
-}
-.tex:hover::after { opacity: 1; }
-.tex-icon {
-  position: absolute; z-index: -1; pointer-events: none; color: rgba(255,255,255,.06);
-  transition: transform .7s cubic-bezier(.2,.8,.2,1), color .5s ease, opacity .5s ease;
-}
-.tex:hover .tex-icon { transform: translate(-8px, -10px) rotate(-8deg) scale(1.06); color: rgba(255,255,255,.14); }
-img.tex-icon { mix-blend-mode: lighten; opacity: .55; }
-.tex:hover img.tex-icon { opacity: 1; }
-@media (hover: none) { .tex::after { display: none; } }
+.tex::before { background-image: radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.5px); }
+.tex::after { background-image: radial-gradient(rgba(255,255,255,.20) 1px, transparent 1.5px); opacity: 0; transition: opacity .45s ease; }
+.tex:hover::after, .tex:focus-visible::after { opacity: 1; }
+.tex-icon { position: absolute; z-index: -1; pointer-events: none; color: rgba(255,255,255,.06); transition: color .45s ease, opacity .45s ease, filter .45s ease; }
+.tex:hover .tex-icon, .tex:focus-visible .tex-icon { color: rgba(255,255,255,.12); }
+/* 3D-картинки: чёрный фон растворяется в плитке, при наведении картинка становится ярче */
+img.tex-icon { mix-blend-mode: lighten; opacity: .5; filter: saturate(.9) brightness(.9); }
+.tex:hover img.tex-icon, .tex:focus-visible img.tex-icon { opacity: .85; filter: none; }
