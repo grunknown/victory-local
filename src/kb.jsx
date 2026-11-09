@@ -224,7 +224,6 @@ export const KB_SECTIONS = [
 const KSEC = Object.fromEntries(KB_SECTIONS.map((x) => [x.id, x]));
 // Иконки-призраки на текстурных плитках. 3D-иконки из Nano Banana кладутся в assets/icons/<name>.png
 // (имена — в docs/visual-prompts.md, раздел 7); пока файла нет, рисуется контурная иконка.
-const SEC_ICON = { newbie: LuSprout, tech: LuLaptop, products: LuBriefcase, rules: LuScale };
 const PRODUCT_ICON = { orm: LuMapPin, 'orm-service': LuStar, performance: LuRocket, leads: LuHeadphones, digital: LuCog, seo: LuMegaphone, vdl: LuBuilding2 };
 const KIT_ICON = { sales: LuBriefcase, marketing: LuMegaphone, onboarding: LuSprout };
 const STEP_ICON = { routine: LuScale, security: LuShieldCheck, laptop: LuLaptop, vpn: LuKeyRound, products: LuBriefcase };
@@ -240,16 +239,6 @@ function Ghost({ icon: I, name, size = 150, className }) {
   const pos = { right: -size * 0.14, bottom: -size * 0.18, width: size, height: size };
   return src ? <img src={src} alt="" onError={fail} className={cx('tex-icon object-contain', className)} style={pos} />
     : <I className={cx('tex-icon', className)} style={pos} strokeWidth={1.1} aria-hidden="true" />;
-}
-// Иллюстрация в шапке раздела: своё место справа, ничего не перекрывает
-function HeroIcon({ icon: I, name }) {
-  const [src, fail] = useIcon(name);
-  return (
-    <div className="pointer-events-none relative hidden h-[190px] w-[190px] shrink-0 md:block" aria-hidden="true">
-      {src ? <img src={src} alt="" onError={fail} className="hero-icon h-full w-full object-contain" />
-        : <I className="h-full w-full p-8 text-white/[0.08]" strokeWidth={1} />}
-    </div>
-  );
 }
 const RULE_SECS = ['rules', 'memos', 'brand'];
 
@@ -275,18 +264,17 @@ function KbSection({ id, go, children }) {
   const foundProducts = query ? PRODUCTS.filter((p) => (p.name + ' ' + p.short + ' ' + p.tag).toLowerCase().includes(query)) : [];
   return (
     <div className="mx-auto max-w-[1180px]">
-      <div className="tex flex items-center gap-8 rounded-3xl bg-card px-6 py-7 sm:px-8 sm:py-8">
-        <div className="min-w-0 flex-1">
-          <div className="text-[13px] text-muted-fg">База знаний</div>
-          <h1 className="display mt-1.5 text-[clamp(28px,3.6vw,40px)]">{sec.title}</h1>
-          <p className="mt-3 max-w-[560px] text-[15.5px] text-muted-fg">{sec.lead}</p>
-          <label className="mt-6 flex h-11 w-full max-w-[420px] cursor-text items-center gap-2.5 rounded-xl bg-muted px-3.5 text-muted-fg transition-colors hover:bg-row-active focus-within:bg-row-active focus-within:text-fg">
+      <div className="tex rounded-3xl bg-card px-6 py-7 sm:px-8 sm:py-8">
+        <div className="text-[13px] text-muted-fg">База знаний</div>
+        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-4">
+          <h1 className="display text-[clamp(28px,3.6vw,40px)]">{sec.title}</h1>
+          <label className="flex h-11 w-full cursor-text items-center gap-2.5 rounded-xl bg-muted px-3.5 text-muted-fg transition-colors hover:bg-row-active focus-within:bg-row-active focus-within:text-fg sm:w-[320px]">
             <LuSearch className="h-4 w-4 shrink-0" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по базе знаний" className="no-ring min-w-0 flex-1 bg-transparent text-[14px] text-fg outline-none placeholder:text-muted-fg" />
             {q && <button onClick={() => setQ('')} aria-label="Очистить"><LuX className="h-3.5 w-3.5" /></button>}
           </label>
         </div>
-        <HeroIcon icon={SEC_ICON[id]} name={'section-' + id} />
+        <p className="mt-3 max-w-[560px] text-[15.5px] text-muted-fg">{sec.lead}</p>
       </div>
       {query ? (
         <div className="mt-8">

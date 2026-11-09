@@ -192,4 +192,3 @@ input.vl-caret { caret-color: transparent; }
 /* 3D-картинки: чёрный фон растворяется в плитке, при наведении картинка становится ярче */
 img.tex-icon { mix-blend-mode: lighten; opacity: .5; filter: saturate(.9) brightness(.9); }
 .tex:hover img.tex-icon, .tex:focus-visible img.tex-icon { opacity: .85; filter: none; }
-.hero-icon { mix-blend-mode: lighten; }
