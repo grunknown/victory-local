@@ -15,11 +15,21 @@ export function StoriesRow({ go }) {
   const ref = useRef();
   const check = () => { const el = ref.current; if (el) setEdge({ l: el.scrollLeft > 4, r: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 }); };
   useEffect(() => { check(); addEventListener('resize', check); return () => removeEventListener('resize', check); }, []);
-  const scroll = (d) => ref.current?.scrollBy({ left: d * ref.current.clientWidth * 0.8, behavior: 'smooth' });
-  const arrow = 'absolute top-[30px] z-10 hidden h-10 w-10 place-items-center rounded-full bg-card-2/90 text-fg shadow-xl backdrop-blur transition-opacity hover:bg-muted md:grid';
+  // Мышью ленту можно тянуть вбок; если тянули, клик по кружку не открывает сторис
+  const drag = useRef(null);
+  const onDown = (e) => { if (e.pointerType !== 'mouse' || e.button !== 0) return; drag.current = { x: e.clientX, left: ref.current.scrollLeft, moved: false }; };
+  const onMove = (e) => {
+    const d = drag.current; if (!d) return;
+    const dx = e.clientX - d.x;
+    if (!d.moved && Math.abs(dx) > 5) { d.moved = true; ref.current.style.scrollBehavior = 'auto'; ref.current.setPointerCapture(e.pointerId); }
+    if (d.moved) ref.current.scrollLeft = d.left - dx;
+  };
+  const onUp = () => { if (drag.current?.moved) { ref.current.style.scrollBehavior = ''; setTimeout(() => { drag.current = null; }); } else drag.current = null; };
+  const onClickCapture = (e) => { if (drag.current?.moved) { e.stopPropagation(); e.preventDefault(); } };
   return (
     <div className="group/st relative -mx-4 lg:-mx-8">
-      <div ref={ref} onScroll={check} className="no-scrollbar flex gap-5 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pt-1 pb-1 lg:px-[max(2rem,calc((100%-1320px)/2))]">
+      <div ref={ref} onScroll={check} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onClickCapture={onClickCapture} onDragStart={(e) => e.preventDefault()}
+        className="no-scrollbar flex cursor-grab gap-5 overflow-x-auto select-none active:cursor-grabbing overscroll-x-contain scroll-smooth px-4 pt-1 pb-1 lg:px-[max(2rem,calc((100%-1320px)/2))]">
         {STORIES.map((g, i) => (
           <button key={g.id} onClick={() => setOpen(i)} className="group flex w-[80px] shrink-0 flex-col items-center gap-2">
             <span className={cx('story-ring rounded-full p-[2.5px] transition-transform duration-300 group-hover:scale-105', seen.has(g.id) && 'seen')}>
@@ -31,11 +41,9 @@ export function StoriesRow({ go }) {
           </button>
         ))}
       </div>
-      {/* затухание по краям и стрелки */}
+      {/* затухание по краям */}
       <div className={cx('pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-bg to-transparent transition-opacity', edge.l ? 'opacity-100' : 'opacity-0')} />
       <div className={cx('pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-bg to-transparent transition-opacity', edge.r ? 'opacity-100' : 'opacity-0')} />
-      <button onClick={() => scroll(-1)} aria-label="Прокрутить назад" className={cx(arrow, 'left-3', edge.l ? 'opacity-100' : 'pointer-events-none opacity-0')}><LuChevronLeft className="h-5 w-5" /></button>
-      <button onClick={() => scroll(1)} aria-label="Прокрутить вперёд" className={cx(arrow, 'right-3', edge.r ? 'opacity-100' : 'pointer-events-none opacity-0')}><LuChevronRight className="h-5 w-5" /></button>
       {open !== null && <StoryViewer start={open} go={go} onClose={() => { setOpen(null); rerender((x) => x + 1); }} />}
     </div>
   );
