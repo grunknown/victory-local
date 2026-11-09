@@ -52,7 +52,7 @@ export function FormsPage({ openPerson }) {
       <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,36px)]">Бланки документов</h1>
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        <label className="flex h-9 w-full items-center gap-2 rounded-lg bg-muted px-3 text-muted-fg focus-within:ring-1 focus-within:ring-white/20 sm:w-[280px]">
+        <label className="flex h-9 w-full items-center gap-2 rounded-lg bg-muted px-3 text-muted-fg transition-colors focus-within:bg-card-2 focus-within:text-fg sm:w-[280px]">
           <LuSearch className="h-4 w-4 shrink-0" />
           <input id="forms-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Найти бланк" className="no-ring min-w-0 flex-1 bg-transparent text-[13.5px] text-fg outline-none placeholder:text-muted-fg" />
           {q && <button onClick={() => setQ('')} aria-label="Очистить"><LuX className="h-3.5 w-3.5" /></button>}

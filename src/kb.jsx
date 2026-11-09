@@ -246,9 +246,9 @@ function KbSection({ id, go, children }) {
   return (
     <div className="mx-auto max-w-[1180px]">
       <div className="text-[13px] text-muted-fg">База знаний</div>
-      <div className="mt-1.5 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-1.5 flex flex-wrap items-center justify-between gap-4">
         <h1 className="display text-[clamp(28px,3.6vw,40px)]">{sec.title}</h1>
-        <label className="flex h-10 w-full items-center gap-2 rounded-xl bg-card px-3 text-muted-fg focus-within:ring-1 focus-within:ring-white/20 sm:w-[300px]">
+        <label className="flex h-10 w-full cursor-text items-center gap-2.5 rounded-xl bg-card px-3.5 text-muted-fg transition-colors hover:bg-card-2 focus-within:bg-card-2 focus-within:text-fg sm:w-[300px]">
           <LuSearch className="h-4 w-4 shrink-0" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по базе знаний" className="no-ring min-w-0 flex-1 bg-transparent text-[13.5px] text-fg outline-none placeholder:text-muted-fg" />
           {q && <button onClick={() => setQ('')} aria-label="Очистить"><LuX className="h-3.5 w-3.5" /></button>}

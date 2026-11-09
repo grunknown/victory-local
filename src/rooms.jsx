@@ -265,7 +265,7 @@ function BookingModal({ draft, bookings, onClose, onSave, onCancel }) {
   const room = ROOMS.find((r) => r.id === b.room);
   const conflict = bookings.find((x) => x.id !== b.id && x.room === b.room && x.day === b.day && x.start < b.end && b.start < x.end);
   const set = (k, v) => setB((x) => ({ ...x, [k]: v }));
-  const field = 'h-9 w-full rounded-lg bg-muted px-3 text-[13.5px] text-fg outline-none no-ring focus:ring-1 focus:ring-white/20';
+  const field = 'h-9 w-full rounded-lg bg-muted px-3 text-[13.5px] text-fg outline-none no-ring transition-colors focus:bg-row-active';
   return createPortal(
     <div className="fixed inset-0 z-[70] grid place-items-center bg-black/60 px-4 backdrop-blur-sm fade" onClick={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); if (!conflict && b.end > b.start) onSave({ ...b, title: b.title.trim() || 'Встреча' }); }}

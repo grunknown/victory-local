@@ -54,7 +54,7 @@ export function ItPage({ openPerson }) {
     toast(`Заявка №${t.id} создана`, 'Фиксики уже видят её');
   };
 
-  const field = 'w-full rounded-xl bg-muted px-3.5 text-[14px] text-fg outline-none no-ring placeholder:text-faint focus:ring-1 focus:ring-white/20';
+  const field = 'w-full rounded-xl bg-muted px-3.5 text-[14px] text-fg outline-none no-ring placeholder:text-faint transition-colors focus:bg-row-active';
 
   return (
     <div className="mx-auto max-w-[1100px]">
