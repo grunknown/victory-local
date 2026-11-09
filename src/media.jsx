@@ -19,7 +19,7 @@ export function StoriesRow({ go }) {
   const arrow = 'absolute top-[30px] z-10 hidden h-10 w-10 place-items-center rounded-full bg-card-2/90 text-fg shadow-xl backdrop-blur transition-opacity hover:bg-muted md:grid';
   return (
     <div className="group/st relative -mx-4 lg:-mx-8">
-      <div ref={ref} onScroll={check} className="flex gap-5 overflow-x-auto px-4 pt-1 pb-1 [scrollbar-width:none] lg:px-[max(2rem,calc((100%-1320px)/2))] [&::-webkit-scrollbar]:hidden">
+      <div ref={ref} onScroll={check} className="no-scrollbar flex gap-5 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pt-1 pb-1 lg:px-[max(2rem,calc((100%-1320px)/2))]">
         {STORIES.map((g, i) => (
           <button key={g.id} onClick={() => setOpen(i)} className="group flex w-[80px] shrink-0 flex-col items-center gap-2">
             <span className={cx('story-ring rounded-full p-[2.5px] transition-transform duration-300 group-hover:scale-105', seen.has(g.id) && 'seen')}>
@@ -34,8 +34,8 @@ export function StoriesRow({ go }) {
       {/* затухание по краям и стрелки */}
       <div className={cx('pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-bg to-transparent transition-opacity', edge.l ? 'opacity-100' : 'opacity-0')} />
       <div className={cx('pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-bg to-transparent transition-opacity', edge.r ? 'opacity-100' : 'opacity-0')} />
-      <button onClick={() => scroll(-1)} aria-label="Прокрутить назад" className={cx(arrow, 'left-3', edge.l ? 'opacity-0 group-hover/st:opacity-100' : 'pointer-events-none opacity-0')}><LuChevronLeft className="h-5 w-5" /></button>
-      <button onClick={() => scroll(1)} aria-label="Прокрутить вперёд" className={cx(arrow, 'right-3', edge.r ? 'opacity-0 group-hover/st:opacity-100' : 'pointer-events-none opacity-0')}><LuChevronRight className="h-5 w-5" /></button>
+      <button onClick={() => scroll(-1)} aria-label="Прокрутить назад" className={cx(arrow, 'left-3', edge.l ? 'opacity-100' : 'pointer-events-none opacity-0')}><LuChevronLeft className="h-5 w-5" /></button>
+      <button onClick={() => scroll(1)} aria-label="Прокрутить вперёд" className={cx(arrow, 'right-3', edge.r ? 'opacity-100' : 'pointer-events-none opacity-0')}><LuChevronRight className="h-5 w-5" /></button>
       {open !== null && <StoryViewer start={open} go={go} onClose={() => { setOpen(null); rerender((x) => x + 1); }} />}
     </div>
   );

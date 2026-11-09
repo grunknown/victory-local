@@ -86,6 +86,10 @@ body {
 ::selection { background: var(--accent); color: var(--accent-fg); }
 
 * { scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+/* Карусели без полосы прокрутки: листаются стрелками и свайпом.
+   Правило вне слоёв Tailwind, иначе его перебивает общее правило выше. */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* Фирменные «пластины»: наклонённые скруглённые панели с тонким светлым краем */
 .plates { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
