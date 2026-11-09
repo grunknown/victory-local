@@ -83,10 +83,15 @@ body {
 .tnum { font-variant-numeric: tabular-nums; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
 .no-ring:focus-visible { outline: none; }
-/* Поля ввода: яркая каретка, а подсказка при фокусе исчезает, чтобы каретка не сливалась с первой буквой */
+/* Поля ввода: белая каретка. В однострочных полях системная каретка спрятана,
+   вместо неё рисуется своя, повыше (src/caret.js). */
 input, textarea { caret-color: var(--fg); }
-input::placeholder, textarea::placeholder { transition: opacity .15s ease; }
-input:focus::placeholder, textarea:focus::placeholder { opacity: 0; }
+input.vl-caret { caret-color: transparent; }
+.vl-caret-bar {
+  display: none; position: fixed; left: 0; top: 0; z-index: 200; width: 1.5px; border-radius: 1px;
+  background: var(--fg); pointer-events: none; animation: caretblink 1.06s steps(1) .5s infinite;
+}
+@keyframes caretblink { 50% { opacity: 0; } }
 ::selection { background: var(--accent); color: var(--accent-fg); }
 
 * { scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
@@ -165,3 +170,5 @@ input:focus::placeholder, textarea:focus::placeholder { opacity: 0; }
 .story-ring.seen { background: var(--muted); }
 .story-bar > i { display: block; height: 100%; background: #fff; transform-origin: left; }
 @keyframes storyfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce) { .vl-caret-bar { animation: none !important; } }

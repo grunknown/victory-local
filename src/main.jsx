@@ -11,6 +11,7 @@ import { ItPage } from './it.jsx';
 import { DEPTS } from './data.js';
 import { LuCheck } from 'react-icons/lu';
 import { cx } from './ui.jsx';
+import { installCaret } from './caret.js';
 
 function Toaster() {
   const [items, setItems] = useState([]);
@@ -104,4 +105,5 @@ function App() {
   );
 }
 
+installCaret();
 createRoot(document.getElementById('root')).render(<App />);
