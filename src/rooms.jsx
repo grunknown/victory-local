@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { LuChevronLeft, LuChevronRight, LuUsers, LuVideo, LuTv, LuPresentation, LuX, LuPlus, LuSearch, LuTrash2, LuClock, LuMapPin } from 'react-icons/lu';
+import { LuChevronLeft, LuChevronRight, LuUsers, LuVideo, LuTv, LuPresentation, LuX, LuPlus, LuSearch, LuTrash2, LuClock, LuMapPin } from './gicons.jsx';
 import { ROOMS, PEOPLE, ME, TODAY, search, byId } from './data.js';
 import { cx, Avatar, Button, Select, fmtDay, weekday, toast } from './ui.jsx';
 

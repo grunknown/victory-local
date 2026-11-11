@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { LuChevronLeft, LuChevronRight, LuX, LuPlay, LuPause, LuEye, LuArrowRight } from 'react-icons/lu';
+import { LuChevronLeft, LuChevronRight, LuX, LuPlay, LuPause, LuEye, LuArrowRight } from './gicons.jsx';
 import { STORIES } from './data.js';
 import { cx, plural } from './ui.jsx';
 

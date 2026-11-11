@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   LuHouse, LuNewspaper, LuUsers, LuCalendar, LuHeadset, LuFileText, LuBookOpen, LuShoppingBag, LuSearch,
   LuChevronRight, LuX, LuMenu, LuCopy, LuCheck, LuPhone, LuMail, LuMapPin, LuCake, LuClock, LuArrowRight, LuPlane, LuBuilding2, LuSend, LuThermometer,
-} from 'react-icons/lu';
+} from './gicons.jsx';
 import { MARK, WORD } from './logo.js';
-import { Caret, CaretRight } from './icons.jsx';
+import { LuChevronDown as Caret, LuChevronRight as CaretRight } from './gicons.jsx';
 import { kbSectionOf } from './kb.jsx';
 import { DIRECTIONS, DEPTS, GROUPS, PEOPLE, ME, byId, dirCount, managerOf, search, MY_COINS, deptPeople } from './data.js';
 import { cx, Avatar, VacationPill, StatusPill, Coin, fmtDay, fmtDM, tenure, deptPath, copyText, Button } from './ui.jsx';

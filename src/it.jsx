@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LuCheck, LuMapPin, LuSend, LuWrench } from 'react-icons/lu';
+import { LuCheck, LuMapPin, LuSend, LuWrench } from './gicons.jsx';
 import { PEOPLE, deptPeople } from './data.js';
 import { cx, Avatar, toast } from './ui.jsx';
 

@@ -4,7 +4,7 @@ import {
   LuScale, LuStickyNote, LuLaptop, LuNetwork, LuPalette, LuBriefcase, LuPresentation, LuSprout, LuWrench,
   LuHeadphones, LuRocket, LuCog, LuMegaphone, LuStar, LuBuilding2, LuMapPin, LuShieldCheck, LuKeyRound,
   LuVideo, LuClock, LuChevronLeft, LuChevronRight, LuX, LuSearch, LuArrowRight, LuPlay, LuCheck, LuInfo,
-} from 'react-icons/lu';
+} from './gicons.jsx';
 import { DIRECTIONS, DEPTS, byId, deptPeople, PEOPLE, WELCOME_VIDEO } from './data.js';
 import { PRODUCTS, PRODUCT, ROLE_KITS } from './products.js';
 import { cx, Avatar, toast } from './ui.jsx';

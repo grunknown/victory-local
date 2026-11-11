@@ -9,7 +9,7 @@ import { KbPage, KbArticle } from './kb.jsx';
 import { StorePage } from './store.jsx';
 import { ItPage } from './it.jsx';
 import { DEPTS } from './data.js';
-import { LuCheck } from 'react-icons/lu';
+import { LuCheck } from './gicons.jsx';
 import { cx } from './ui.jsx';
 import { installCaret } from './caret.js';
 

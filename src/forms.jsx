@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LuDownload, LuSearch, LuX } from 'react-icons/lu';
+import { LuDownload, LuSearch, LuX } from './gicons.jsx';
 import { FORMS, DEPTS, PEOPLE, byId, deptPeople } from './data.js';
 import { cx, toast } from './ui.jsx';
 import { PersonCard } from './people.jsx';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { LuX, LuPackage, LuMapPin, LuCheck, LuBell } from 'react-icons/lu';
+import { LuX, LuPackage, LuMapPin, LuCheck, LuBell } from './gicons.jsx';
 import { MERCH, MY_COINS, TODAY, deptPeople } from './data.js';
 import { cx, Coin, toast, fmtShort } from './ui.jsx';
 import { Plates } from './pages.jsx';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { DEPTS, TODAY } from './data.js';
-import { LuChevronDown, LuCheck } from 'react-icons/lu';
+import { LuChevronDown, LuCheck } from './gicons.jsx';
 
 export const cx = (...a) => a.filter(Boolean).join(' ');
 

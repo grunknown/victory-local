@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   LuArrowRight, LuMessageCircle, LuClock, LuChevronLeft, LuPartyPopper, LuCheck, LuHammer, LuSend, LuX,
   LuFilm, LuMapPin, LuTrophy, LuUsers, LuSparkles, LuImage, LuPlay,
-} from 'react-icons/lu';
+} from './gicons.jsx';
 import { NEWS, NEWBIES, ME, TODAY, DEPTS, birthdaysAhead, EVENTS } from './data.js';
 import { cx, Avatar, Card, CardHead, Button, fmtDay, fmtShort, relDay, weekday, daysBetween, plural, burstConfetti, toast, Coin } from './ui.jsx';
 import { StoriesRow, VideoPlayer } from './media.jsx';
