@@ -1,5 +1,6 @@
 import React from 'react';
 import { DEPTS, TODAY } from './data.js';
+import { LuChevronDown, LuCheck } from 'react-icons/lu';
 
 export const cx = (...a) => a.filter(Boolean).join(' ');
 
@@ -78,11 +79,11 @@ export const deptPath = (id) => {
 
 export function Button({ variant = 'default', size = 'md', className, children, ...rest }) {
   const v = {
-    default: 'bg-accent text-accent-fg hover:brightness-110 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_6px_20px_-10px_var(--glow)]',
+    default: 'bg-accent text-accent-fg hover:bg-white/85',
     light: 'bg-fg text-bg hover:opacity-90',
-    outline: 'border border-border-strong bg-transparent hover:bg-muted text-fg',
+    outline: 'bg-muted hover:bg-row-active text-fg',
     ghost: 'hover:bg-muted text-fg',
-    soft: 'bg-accent-soft text-accent hover:bg-accent hover:text-accent-fg',
+    soft: 'bg-muted text-fg hover:bg-accent hover:text-accent-fg',
   }[variant];
   const s = { sm: 'h-8 px-3 text-[13px] gap-1.5', md: 'h-10 px-4 text-sm gap-2', icon: 'h-9 w-9 justify-center' }[size];
   return (
@@ -93,14 +94,14 @@ export function Button({ variant = 'default', size = 'md', className, children, 
 }
 
 export function Card({ className, children, ...rest }) {
-  return <section className={cx('rounded-2xl border border-border bg-card', className)} {...rest}>{children}</section>;
+  return <section className={cx('rounded-2xl bg-card', className)} {...rest}>{children}</section>;
 }
 
 export function CardHead({ title, action, icon: Icon }) {
   return (
     <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3">
       <h2 className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.01em]">
-        {Icon && <Icon className="h-4 w-4 text-accent" />}
+        {Icon && <Icon className="h-4 w-4 text-muted-fg" />}
         {title}
       </h2>
       {action}
@@ -108,13 +109,15 @@ export function CardHead({ title, action, icon: Icon }) {
   );
 }
 
-export function Coin({ size = 16, spin }) {
+export function Coin({ size = 16 }) {
   return (
-    <svg viewBox="0 0 24 24" width={size} height={size} className={cx('shrink-0', spin && 'coin-spin')} aria-hidden="true">
-      <circle cx="12" cy="12" r="11" fill="var(--accent)" />
-      <circle cx="12" cy="12" r="8.2" fill="none" stroke="var(--accent-fg)" strokeOpacity=".35" strokeWidth="1.2" />
-      <path d="M15.6 7.4 11.2 11.6V9.4l4.4-4.2zM7.6 9.2l1.6 1.6h2.4V9.2z" fill="var(--accent-fg)" transform="translate(-0.4 2.4) scale(1.05)" />
-    </svg>
+    <span className="coin-3d inline-grid shrink-0 place-items-center" style={{ width: size, height: size }} aria-hidden="true">
+      <svg viewBox="0 0 24 24" width={size} height={size}>
+        <circle cx="12" cy="12" r="11" fill="#ffffff" />
+        <circle cx="12" cy="12" r="8.2" fill="none" stroke="#0a0a0a" strokeOpacity=".25" strokeWidth="1.2" />
+        <path d="M15.6 7.4 11.2 11.6V9.4l4.4-4.2zM7.6 9.2l1.6 1.6h2.4V9.2z" fill="#0a0a0a" transform="translate(-0.4 2.4) scale(1.05)" />
+      </svg>
+    </span>
   );
 }
 
@@ -127,7 +130,7 @@ export function burstConfetti(x, y) {
   c.style.width = '100%'; c.style.height = '100%';
   document.body.appendChild(c);
   const g = c.getContext('2d'); g.scale(devicePixelRatio, devicePixelRatio);
-  const colors = ['#6e79d6', '#9aa3ff', '#ffffff', '#c9cdf5', '#4cb782', '#e2a33d'];
+  const colors = ['#ffffff', '#d9d9d9', '#8f8f8f', '#f5f5f5', '#4cb782', '#e2a33d'];
   const parts = Array.from({ length: 140 }, () => ({
     x, y, vx: (Math.random() - 0.5) * 12, vy: -Math.random() * 12 - 4, r: Math.random() * 6 + 3,
     c: colors[(Math.random() * colors.length) | 0], a: Math.random() * Math.PI, va: (Math.random() - 0.5) * 0.3,
@@ -149,4 +152,67 @@ export function copyText(text, onDone) {
   try {
     navigator.clipboard.writeText(text).then(done, done);
   } catch { done(); }
+}
+
+// Выпадающий список в стиле портала вместо системного <select>: тёмный, с прокруткой к выбранному,
+// управляется с клавиатуры (стрелки, Enter, Esc). Если внизу мало места — открывается вверх.
+export function Select({ id, value, options, onChange, className, buttonClassName }) {
+  const [open, setOpen] = React.useState(false);
+  const [active, setActive] = React.useState(0);
+  const [up, setUp] = React.useState(false);
+  const wrap = React.useRef(); const list = React.useRef();
+  const idx = Math.max(0, options.findIndex((o) => o.value === value));
+  const cur = options[idx];
+  const show = () => {
+    const r = wrap.current.getBoundingClientRect();
+    setUp(innerHeight - r.bottom < 260 && r.top > innerHeight - r.bottom);
+    setActive(idx); setOpen(true);
+  };
+  const pick = (i) => { onChange(options[i].value); setOpen(false); wrap.current.querySelector('button')?.focus(); };
+  React.useEffect(() => {
+    if (!open) return;
+    list.current?.children[active]?.scrollIntoView({ block: 'nearest' });
+  }, [open, active]);
+  React.useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (!wrap.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('pointerdown', h);
+    return () => document.removeEventListener('pointerdown', h);
+  }, [open]);
+  const onKey = (e) => {
+    if (!open) {
+      if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) { e.preventDefault(); show(); }
+      return;
+    }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setOpen(false); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(options.length - 1, a + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(0, a - 1)); }
+    else if (e.key === 'Home') { e.preventDefault(); setActive(0); }
+    else if (e.key === 'End') { e.preventDefault(); setActive(options.length - 1); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(active); }
+    else if (e.key === 'Tab') setOpen(false);
+  };
+  return (
+    <div ref={wrap} className={cx('relative', className)} onKeyDown={onKey}>
+      <button type="button" id={id} aria-haspopup="listbox" aria-expanded={open} onClick={() => (open ? setOpen(false) : show())}
+        className={cx('flex h-9 w-full items-center justify-between gap-2 rounded-lg bg-muted px-3 text-left text-[13.5px] text-fg transition-colors no-ring hover:bg-row-active focus-visible:bg-row-active', open && 'bg-row-active', buttonClassName)}>
+        <span className="truncate">{cur?.label}</span>
+        <LuChevronDown className={cx('h-4 w-4 shrink-0 text-muted-fg transition-transform', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <ul ref={list} role="listbox" aria-labelledby={id}
+          className={cx('pop absolute right-0 left-0 z-30 max-h-60 overflow-y-auto rounded-xl bg-card-2 p-1 shadow-2xl shadow-black/70', up ? 'bottom-full mb-1' : 'top-full mt-1')}>
+          {options.map((o, i) => (
+            <li key={String(o.value)} role="option" aria-selected={i === idx}
+              onPointerMove={() => active !== i && setActive(i)} onClick={() => pick(i)}
+              className={cx('flex h-9 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-[13.5px] tnum',
+                i === active ? 'bg-row-active text-fg' : 'text-fg/85', i === idx && 'font-medium')}>
+              <span className="truncate">{o.label}</span>
+              {i === idx && <LuCheck className="h-3.5 w-3.5 shrink-0 text-fg" />}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }

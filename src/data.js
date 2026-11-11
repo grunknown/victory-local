@@ -223,9 +223,11 @@ export const PHOTO_PEOPLE = [
   });
 }
 
+const V = (id, dur) => ({ src: `assets/videos/${id}.mp4`, poster: `assets/videos/${id}.jpg`, dur });
+
 // ---------- Новости ----------
 export const NEWS = [
-  { id: 'n1', rubric: 'События', title: 'Victory Group переезжает в новую штаб-квартиру на Восточной', lead: '4 000 м², шесть этажей, восемь переговорок и своя кофейня. Рассказываем, как пройдёт переезд и что поменяется для каждого отдела.', date: addDays(TODAY, 0), mins: 4, author: 'hrbp', reactions: { '🔥': 214, '👏': 96, '❤️': 58 }, comments: 37, cover: 'office', featured: true,
+  { id: 'n1', rubric: 'События', title: 'Victory Group переезжает в новую штаб-квартиру на Восточной', lead: '4 000 м², шесть этажей, восемь переговорок и своя кофейня. Рассказываем, как пройдёт переезд и что поменяется для каждого отдела.', date: addDays(TODAY, 0), mins: 4, author: 'hrbp', reactions: { '🔥': 214, '👏': 96, '❤️': 58 }, comments: 37, cover: 'office', photo: 'assets/news/n1.jpg', featured: true,
     body: [
       ['p', 'С 1 ноября команды начинают поэтапный переезд в новую штаб-квартиру на улице Восточной, 7Г. Мы выросли из старого офиса ещё год назад, и теперь у нас наконец есть пространство, где поместится вся компания.'],
       ['h', 'Как пройдёт переезд'],
@@ -234,12 +236,14 @@ export const NEWS = [
       ['h', 'Что внутри'],
       ['p', 'Восемь переговорок разного размера, тихие кабины для звонков, кофейня на первом этаже, спортзал и терраса на крыше. Переговорки уже можно бронировать на портале.'],
     ] },
-  { id: 'n6', rubric: 'Команда', source: 'tg', title: 'Новая фотосессия команды', lead: 'Сняли портреты для сайта, презентаций и портала. Забирайте свои фото у HR, а остальные скоро появятся в профилях.', date: addDays(TODAY, 0), mins: 1, author: 'hrbp', reactions: { '🔥': 156, '😍': 88 }, comments: 19,
+  { id: 'n13', rubric: 'События', title: 'Тур по новому офису за 11 секунд', lead: 'Опенспейс, переговорки и кофейня — смотрите, где теперь работаем.', date: addDays(TODAY, 0), mins: 1, reactions: { '🔥': 188, '😍': 64 }, comments: 21, video: V('office', '0:11'), cover: 'office',
+    body: [['p', 'Полный тур с экскурсоводом из АХО — в пятницу в 16:00, сбор у ресепшена.']] },
+  { id: 'n6', rubric: 'Команда', source: 'tg', video: V('shoot', '0:11'), title: 'Новая фотосессия команды', lead: 'Сняли портреты для сайта, презентаций и портала. Забирайте свои фото у HR, а остальные скоро появятся в профилях.', date: addDays(TODAY, 0), mins: 1, author: 'hrbp', reactions: { '🔥': 156, '😍': 88 }, comments: 19,
     images: ['assets/photos/p05.jpg', 'assets/photos/p11.jpg', 'assets/photos/p07.jpg', 'assets/photos/p02.jpg', 'assets/photos/p14.jpg', 'assets/photos/p09.jpg'],
     body: [['p', 'Спасибо всем, кто пришёл на съёмку! Фото уже в общей папке, а портреты постепенно появятся в карточках сотрудников на портале.']] },
-  { id: 'n2', rubric: 'Достижения', source: 'tg', title: 'Команда SERM взяла «Серебро» на Tagline Awards', lead: 'Кейс по восстановлению репутации сети клиник отметили в номинации «Лучшая ORM-кампания».', date: addDays(TODAY, -1), mins: 3, author: 'hrbp', reactions: { '🏆': 182, '🔥': 77 }, comments: 24, cover: 'award',
+  { id: 'n2', rubric: 'Достижения', source: 'tg', title: 'Команда SERM взяла «Серебро» на Tagline Awards', lead: 'Кейс по восстановлению репутации сети клиник отметили в номинации «Лучшая ORM-кампания».', date: addDays(TODAY, -1), mins: 3, author: 'hrbp', reactions: { '🏆': 182, '🔥': 77 }, comments: 24, cover: 'award', photo: 'assets/news/n2.jpg', video: V('awards', '0:11'),
     body: [['p', 'Жюри отметило комплексный подход: аудит выдачи, работу с площадками отзывов и систему мониторинга, которая сократила время реакции до 40 минут.'], ['p', 'Поздравляем команду SERM и аккаунт-менеджеров проекта!']] },
-  { id: 'n3', rubric: 'HR', title: 'Запускаем внутреннюю программу наставничества', lead: 'Опытные сотрудники помогут новичкам пройти первые три месяца. Наставники получат бонус и доступ к обучению.', date: addDays(TODAY, -3), mins: 2, author: 'learning', reactions: { '👏': 64, '❤️': 41 }, comments: 12, cover: 'mentor',
+  { id: 'n3', rubric: 'HR', title: 'Запускаем внутреннюю программу наставничества', lead: 'Опытные сотрудники помогут новичкам пройти первые три месяца. Наставники получат бонус и доступ к обучению.', date: addDays(TODAY, -3), mins: 2, author: 'learning', reactions: { '👏': 64, '❤️': 41 }, comments: 12, cover: 'mentor', photo: 'assets/news/n3.jpg',
     body: [['p', 'Программа стартует 1 ноября. Заявку на роль наставника можно оставить у своего руководителя до 28 октября.'], ['p', 'Подробности и регламент — в базе знаний, раздел «Онбординг».']] },
   { id: 'n4', rubric: 'События', source: 'tg', title: 'Корпоратив «Victory Night» — 20 декабря', lead: 'Регистрация открыта до 1 декабря. Тема вечера — «Ревущие двадцатые».', date: addDays(TODAY, -5), mins: 2, author: 'hrbp', reactions: { '🎉': 301, '🔥': 120 }, comments: 58, cover: 'party',
     body: [['p', 'Собираемся всей компанией в загородном клубе. Трансфер от офиса в 17:00. Дресс-код — 1920-е.']] },
@@ -251,7 +255,7 @@ export const NEWS = [
   { id: 'n9', rubric: 'События', source: 'tg', title: 'Как прошёл осенний тимбилдинг', lead: 'Байдарки, костёр и 140 участников. Делимся фото и лучшими моментами.', date: addDays(TODAY, -12), mins: 2, reactions: { '😍': 210, '🔥': 87 }, comments: 41, images: ['assets/photos/p17.jpg', 'assets/photos/p12.jpg', 'assets/photos/p15.jpg'], body: [['p', 'Спасибо организаторам и всем, кто приехал!']] },
   { id: 'n10', rubric: 'Достижения', title: 'Victory Group вошла в топ-10 рейтинга Рунета по ORM', lead: 'Поднялись на четыре позиции за год.', date: addDays(TODAY, -15), mins: 2, reactions: { '🏆': 133 }, comments: 9, cover: 'award', body: [['p', 'Рейтинг составлен по выручке и количеству кейсов.']] },
   { id: 'n11', rubric: 'Продукт', title: 'Запустили внутренний сервис сквозной аналитики', lead: 'Все отчёты по клиентам теперь в одном окне. Доступы выдаёт IT.', date: addDays(TODAY, -18), mins: 4, reactions: { '👏': 66 }, comments: 12, cover: 'chart', body: [['p', 'Сервис собирает данные из рекламных кабинетов, CRM и контакт-центра.']] },
-  { id: 'n12', rubric: 'Команда', source: 'tg', title: 'Знакомьтесь: команда моушн-дизайна', lead: 'Кто делает все ролики агентства и почему у них в кабинете живёт кактус Гоша.', date: addDays(TODAY, -21), mins: 3, reactions: { '❤️': 77 }, comments: 18, images: ['assets/photos/p01.jpg'], body: [['p', 'В команде 22 человека, и каждый месяц они выпускают больше 60 роликов.']] },
+  { id: 'n12', rubric: 'Команда', source: 'tg', title: 'Знакомьтесь: команда моушн-дизайна', lead: 'Кто делает все ролики агентства и почему у них в кабинете живёт кактус Гоша.', date: addDays(TODAY, -21), mins: 3, reactions: { '❤️': 77 }, comments: 18, images: ['assets/photos/p01.jpg'], video: V('motion', '0:11'), body: [['p', 'В команде 22 человека, и каждый месяц они выпускают больше 60 роликов.']] },
 ];
 
 // ---------- События ----------
@@ -261,6 +265,69 @@ export const EVENTS = [
   { title: 'Турнир по настольному теннису', date: addDays(TODAY, 16), time: '18:30', place: 'Терраса, 6 этаж', desc: 'Сетка на 32 игрока, запись у HR' },
   { title: 'Victory Night', date: addDays(TODAY, 61), time: '18:00', place: 'Загородный клуб', desc: 'Новогодний корпоратив, дресс-код 1920-х' },
 ].sort((a, b) => a.date - b.date);
+
+// ---------- Видео: живут внутри новостей (поле video) и открываются прямо из карточки ----------
+// Сейчас это заглушки из картинок: scripts/make-videos.sh
+export const WELCOME_VIDEO = { id: 'v-welcome', title: 'Привет от основателей: что такое Victory Group', ...V('welcome', '0:11'), cover: 'assets/news/n3.jpg' };
+
+// ---------- Сторис ----------
+// Каждая группа — кружок в ленте; внутри слайды: фото или фирменные «пластины» с текстом.
+const st = (f) => `assets/stories/${f}.jpg`;
+export const STORIES = [
+  { id: 's-move', label: 'Переезд', cover: st('move-office'), slides: [
+    { img: st('move-office'), title: 'Мы на Восточной, 7Г', text: 'Первая волна уже въехала: продакшн и IT на 3 и 4 этажах.' },
+    { img: st('move-coffee'), title: 'Кофейня работает', text: 'Первый этаж, с 8:00 до 20:00. Капучино по пропуску — бесплатно до конца ноября.' },
+    { img: st('move-rooms'), title: 'Переговорки — только через портал', text: 'Восемь комнат, бронь занимает десять секунд.', cta: { label: 'Забронировать', to: 'rooms' } },
+  ] },
+  { id: 's-merch', label: 'Мерч', cover: st('merch-hoodie'), slides: [
+    { img: st('merch-hoodie'), title: 'Новая коллекция худи', text: 'Чёрные, тяжёлые, с вышивкой. Лимит — 120 штук.' },
+    { img: st('merch-flatlay'), title: 'За Victory Coin', text: 'Худи — 1 200 коинов, футболка — 600.', cta: { label: 'В магазин', to: 'store' } },
+  ] },
+  { id: 's-awards', label: 'Награды', cover: st('awards'), slides: [
+    { img: st('awards'), title: 'Серебро Tagline', text: 'Кейс SERM для сети клиник — лучшая ORM-кампания года.' },
+    { img: st('top10'), title: 'Топ-10 по ORM', text: 'Поднялись на четыре позиции в рейтинге Рунета.' },
+  ] },
+  { id: 's-wheel', label: 'Колесо', cover: st('wheel'), slides: [
+    { img: st('wheel'), title: 'Колесо фортуны', text: 'В пятницу в 17:00 в кофейне. Призы: мерч, коины и поздний старт.' },
+  ] },
+  { id: 's-it', label: 'Фиксики', cover: st('it-help'), slides: [
+    { img: st('it-help'), title: 'Не работает VPN?', text: 'Перезапустите клиент и проверьте время на компьютере. Не помогло — зовите Фиксиков.', cta: { label: 'Позвать Фиксика', to: 'it' } },
+  ] },
+  { id: 's-newbies', label: 'Новички', cover: 'assets/photos/p14.jpg', slides: [
+    { img: 'assets/photos/p14.jpg', title: 'Юлия, продакт-дизайнер', text: 'Пришла из финтеха, любит сложные интерфейсы и горы.' },
+    { img: 'assets/photos/p09.jpg', title: 'Егор, performance', text: 'Пять лет в контексте. Скажите ему «ДРР» — и он расскажет всё.' },
+  ] },
+  { id: 's-coffee', label: 'Кофейня', cover: st('move-coffee'), slides: [
+    { img: st('move-coffee'), title: 'Новое меню', text: 'Раф на кедровом молоке и сырники до 11:00.' },
+  ] },
+  { id: 's-shoot', label: 'Фотосессия', cover: 'assets/frames/shoot.jpg', slides: [
+    { img: 'assets/frames/shoot.jpg', title: 'Снимаем портреты', text: 'Ещё два дня: 6 этаж, с 11:00 до 17:00. Запись у HR.' },
+  ] },
+  { id: 's-mentor', label: 'Наставники', cover: 'assets/news/n3.jpg', slides: [
+    { img: 'assets/news/n3.jpg', title: 'Станьте наставником', text: 'Бонус, обучение и благодарность новичка. Заявки — у руководителя.' },
+  ] },
+  { id: 's-office', label: 'Офис', cover: 'assets/news/n1.jpg', slides: [
+    { img: 'assets/news/n1.jpg', title: 'Шесть этажей', text: 'Терраса на крыше откроется весной.' },
+  ] },
+  { id: 's-sales', label: 'Продажи', cover: st('top10'), slides: [
+    { img: st('top10'), title: '+38% к плану', text: 'Отдел продаж закрыл рекордный квартал.' },
+  ] },
+  { id: 's-night', label: 'Victory Night', cover: 'assets/frames/awards.jpg', slides: [
+    { img: 'assets/frames/awards.jpg', title: 'Victory Night — 20 декабря', text: 'Регистрация до 1 декабря. Дресс-код — 1920-е.' },
+  ] },
+  { id: 's-cinema', label: 'Кино', cover: 'assets/photos/p12.jpg', slides: [
+    { title: 'Кино-вечер', text: 'Фильм выбираем голосованием в Telegram-канале. Конференц-зал, 6 этаж.' },
+  ] },
+  { id: 's-tennis', label: 'Теннис', cover: 'assets/photos/p17.jpg', slides: [
+    { title: 'Турнир по настольному теннису', text: 'Сетка на 32 игрока, запись у HR.' },
+  ] },
+  { id: 's-hr', label: 'HR', cover: 'assets/photos/p08.jpg', slides: [
+    { title: 'Отпуск — через портал', text: 'С 1 ноября бумажные заявления больше не принимаем.', cta: { label: 'Бланки документов', to: 'forms' } },
+  ] },
+  { id: 's-kb', label: 'Новичкам', cover: 'assets/photos/p10.jpg', slides: [
+    { img: 'assets/photos/p10.jpg', title: 'Первая неделя', text: 'Презентация, видео и пять шагов — в базе знаний.', cta: { label: 'Открыть', to: 'kb-newbie' } },
+  ] },
+];
 
 // ---------- Переговорки ----------
 export const ROOMS = [

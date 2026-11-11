@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LuChevronLeft, LuChevronRight, LuUsers, LuVideo, LuTv, LuPresentation, LuX, LuPlus, LuSearch, LuTrash2, LuClock, LuMapPin } from 'react-icons/lu';
 import { ROOMS, PEOPLE, ME, TODAY, search, byId } from './data.js';
-import { cx, Avatar, Button, fmtDay, weekday, toast } from './ui.jsx';
+import { cx, Avatar, Button, Select, fmtDay, weekday, toast } from './ui.jsx';
 
 // Переговорки: «Сейчас» (статус каждой комнаты) → расписание дня (комнаты × время, бронь протягиванием) → мои брони.
 
@@ -53,13 +53,12 @@ const EQ_ICON = (e) => (/ВКС/.test(e) ? LuVideo : /ТВ|Проектор/.tes
 export function RoomsPage({ openPerson }) {
   const [bookings, setBookings] = useState(seedBookings);
   const [day, setDay] = useState(0);
-  const [cap, setCap] = useState('all');
   const [vks, setVks] = useState(false);
   const [draft, setDraft] = useState(null); // { room, day, start, end }
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((x) => x + 1), 60000); return () => clearInterval(t); }, []);
 
-  const rooms = ROOMS.filter((r) => (cap === 'all' || (cap === 's' ? r.cap <= 4 : cap === 'm' ? r.cap > 4 && r.cap <= 10 : r.cap > 10)) && (!vks || r.eq.some((e) => /ВКС/.test(e))));
+  const rooms = ROOMS.filter((r) => (!vks || r.eq.some((e) => /ВКС/.test(e))));
   const dayBookings = bookings.filter((b) => b.day === day);
   const now = currentSlot();
   const mine = bookings.filter((b) => b.mine).sort((a, b) => a.day - b.day || a.start - b.start);
@@ -97,12 +96,7 @@ export function RoomsPage({ openPerson }) {
           <button onClick={() => setDay(Math.min(6, day + 1))} disabled={day === 6} className="grid h-8 w-8 place-items-center rounded-lg text-muted-fg hover:bg-row-hover hover:text-fg disabled:opacity-30" aria-label="Следующий день"><LuChevronRight /></button>
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-1">
-          {[['all', 'Любые'], ['s', 'до 4'], ['m', '5–10'], ['l', 'от 10']].map(([k, l]) => (
-            <button key={k} onClick={() => setCap(k)} className={cx('flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] transition-colors', cap === k ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
-              {k === 'all' && <LuUsers className="h-3.5 w-3.5" />}{l}
-            </button>
-          ))}
-          <button onClick={() => setVks(!vks)} className={cx('flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] transition-colors', vks ? 'bg-accent-soft text-accent' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}><LuVideo className="h-3.5 w-3.5" />ВКС</button>
+          <button onClick={() => setVks(!vks)} className={cx('flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] transition-colors', vks ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}><LuVideo className="h-3.5 w-3.5" />ВКС</button>
         </div>
       </div>
 
@@ -140,7 +134,7 @@ function NowStrip({ rooms, bookings, now, onBook }) {
   const at = now ?? -1;
   return (
     <section className="mt-8">
-      <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Сейчас</h2>
+      <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Свободные в данный момент</h2>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {rooms.map((r) => {
           const list = bookings.filter((b) => b.room === r.id).sort((a, b) => a.start - b.start);
@@ -150,11 +144,11 @@ function NowStrip({ rooms, bookings, now, onBook }) {
           const startSlot = Math.ceil(at);
           const canGrab = free && (!next || next.start - startSlot >= 1) && startSlot < SLOTS;
           return (
-            <div key={r.id} className="flex flex-col rounded-2xl border border-border-strong bg-card p-4">
+            <div key={r.id} className="flex flex-col rounded-2xl bg-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="truncate text-[15px] font-semibold">{r.name}</div>
-                  <div className="mt-0.5 text-[12.5px] text-muted-fg">{r.floor} этаж · до {r.cap} чел.</div>
+                  <div className="mt-0.5 text-[12.5px] text-muted-fg">{r.floor} этаж</div>
                 </div>
                 <span className={cx('mt-1 h-2.5 w-2.5 shrink-0 rounded-full', now === null ? 'bg-faint' : free ? 'bg-ok shadow-[0_0_0_4px_var(--ok-soft)]' : 'bg-danger shadow-[0_0_0_4px_var(--danger-soft)]')} />
               </div>
@@ -192,10 +186,10 @@ function Timeline({ rooms, bookings, now, onSelect, onOpen }) {
   });
   const selRange = sel && range(sel.room, sel.a, sel.b);
   return (
-    <div className="mt-4 overflow-x-auto rounded-2xl border border-border-strong bg-card">
+    <div className="mt-4 overflow-x-auto rounded-2xl bg-card">
       <div className="relative select-none" style={{ width: LABEL + SLOTS * CELL, touchAction: 'pan-x' }}>
         {/* шкала часов */}
-        <div className="sticky top-0 z-10 flex h-9 border-b border-border bg-card" style={{ paddingLeft: LABEL }}>
+        <div className="sticky top-0 z-10 flex h-9 border-b border-line bg-card" style={{ paddingLeft: LABEL }}>
           {Array.from({ length: SLOTS }, (_, i) => (
             <div key={i} className="relative shrink-0 text-[11.5px] text-muted-fg tnum" style={{ width: CELL }}>
               {i % 2 === 0 && <span className="absolute top-2.5 -left-[16px] w-8 text-center">{slotLabel(i)}</span>}
@@ -203,17 +197,17 @@ function Timeline({ rooms, bookings, now, onSelect, onOpen }) {
           ))}
         </div>
         {rooms.map((r) => (
-          <div key={r.id} className="relative flex border-b border-border last:border-b-0" style={{ height: ROW }}
+          <div key={r.id} className="relative flex border-b border-line last:border-b-0" style={{ height: ROW }}
             onPointerMove={(e) => {
               if (!dragging.current || !sel || sel.room !== r.id) return;
               const rect = e.currentTarget.getBoundingClientRect();
               const i = Math.max(0, Math.min(SLOTS - 1, Math.floor((e.clientX - rect.left - LABEL) / CELL)));
               if (i !== sel.b) setSel({ ...sel, b: i });
             }}>
-            <div className="sticky left-0 z-[5] flex shrink-0 flex-col justify-center border-r border-border bg-card px-4" style={{ width: LABEL }}>
+            <div className="sticky left-0 z-[5] flex shrink-0 flex-col justify-center border-r border-line bg-card px-4" style={{ width: LABEL }}>
               <span className="truncate text-[13.5px] font-medium">{r.name}</span>
               <span className="mt-0.5 flex items-center gap-1.5 text-[11.5px] text-muted-fg">
-                <LuUsers className="h-3 w-3" />{r.cap}<span className="text-faint">·</span>{r.floor} эт.
+                {r.floor} эт.
                 {r.eq.map((e) => { const I = EQ_ICON(e); return I ? <I key={e} className="h-3 w-3" title={e} /> : null; })}
               </span>
             </div>
@@ -224,7 +218,7 @@ function Timeline({ rooms, bookings, now, onSelect, onOpen }) {
               return (
                 <div key={i}
                   onPointerDown={(e) => { if (isBusy || past) return; e.preventDefault(); e.currentTarget.releasePointerCapture?.(e.pointerId); dragging.current = true; setSel({ room: r.id, a: i, b: i }); }}
-                  className={cx('shrink-0 border-l', i % 2 === 0 ? 'border-border' : 'border-border/40', !isBusy && !past && 'cursor-crosshair hover:bg-accent-soft', past && 'bg-[repeating-linear-gradient(135deg,transparent_0_6px,var(--row-hover)_6px_7px)]', inSel && 'bg-accent-soft')}
+                  className={cx('shrink-0 border-l', i % 2 === 0 ? 'border-line' : 'border-white/[0.025]', !isBusy && !past && 'cursor-crosshair hover:bg-accent-soft', past && 'bg-[repeating-linear-gradient(135deg,transparent_0_6px,var(--row-hover)_6px_7px)]', inSel && 'bg-accent-soft')}
                   style={{ width: CELL }} />
               );
             })}
@@ -245,7 +239,7 @@ function Timeline({ rooms, bookings, now, onSelect, onOpen }) {
               );
             })}
             {selRange && sel.room === r.id && (
-              <div className="pointer-events-none absolute top-1.5 bottom-1.5 grid place-items-center rounded-lg border border-dashed border-accent text-[12px] font-medium text-accent tnum"
+              <div className="pointer-events-none absolute top-1.5 bottom-1.5 grid place-items-center rounded-lg bg-white/10 text-[12px] font-medium text-fg tnum"
                 style={{ left: LABEL + selRange[0] * CELL + 2, width: (selRange[1] - selRange[0]) * CELL - 4 }}>
                 {slotLabel(selRange[0])}–{slotLabel(selRange[1])}
               </div>
@@ -271,11 +265,11 @@ function BookingModal({ draft, bookings, onClose, onSave, onCancel }) {
   const room = ROOMS.find((r) => r.id === b.room);
   const conflict = bookings.find((x) => x.id !== b.id && x.room === b.room && x.day === b.day && x.start < b.end && b.start < x.end);
   const set = (k, v) => setB((x) => ({ ...x, [k]: v }));
-  const field = 'h-9 w-full rounded-lg bg-muted px-3 text-[13.5px] text-fg outline-none no-ring focus:ring-1 focus:ring-border-hover';
+  const field = 'h-9 w-full rounded-lg bg-muted px-3 text-[13.5px] text-fg outline-none no-ring transition-colors focus:bg-row-active';
   return createPortal(
     <div className="fixed inset-0 z-[70] grid place-items-center bg-black/60 px-4 backdrop-blur-sm fade" onClick={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); if (!conflict && b.end > b.start) onSave({ ...b, title: b.title.trim() || 'Встреча' }); }}
-        className="pop w-full max-w-[480px] rounded-2xl border border-border-strong bg-card p-5 shadow-2xl shadow-black/60" onClick={(e) => e.stopPropagation()}>
+        className="pop w-full max-w-[480px] rounded-2xl bg-card-2 p-5 shadow-2xl shadow-black/60" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <h3 className="text-[17px] font-semibold">{draft.id ? 'Изменить бронь' : 'Новая бронь'}</h3>
           <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-lg text-muted-fg hover:bg-muted" aria-label="Закрыть"><LuX /></button>
@@ -285,27 +279,23 @@ function BookingModal({ draft, bookings, onClose, onSave, onCancel }) {
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-room">Переговорка</label>
-            <select id="bk-room" value={b.room} onChange={(e) => set('room', e.target.value)} className={cx(field, 'mt-1')}>
-              {ROOMS.map((r) => <option key={r.id} value={r.id}>{r.name} · до {r.cap} чел.</option>)}
-            </select>
+            <Select id="bk-room" className="mt-1" value={b.room} onChange={(v) => set('room', v)}
+              options={ROOMS.map((r) => ({ value: r.id, label: `${r.name} · ${r.floor} этаж` }))} />
           </div>
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-day">День</label>
-            <select id="bk-day" value={b.day} onChange={(e) => set('day', +e.target.value)} className={cx(field, 'mt-1')}>
-              {DAYS.map((d, i) => <option key={i} value={i}>{i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : fmtDay(d)}</option>)}
-            </select>
+            <Select id="bk-day" className="mt-1" value={b.day} onChange={(v) => set('day', v)}
+              options={DAYS.map((d, i) => ({ value: i, label: i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : fmtDay(d) }))} />
           </div>
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-start">Начало</label>
-            <select id="bk-start" value={b.start} onChange={(e) => { const s = +e.target.value; setB((x) => ({ ...x, start: s, end: Math.max(x.end, s + 1) })); }} className={cx(field, 'mt-1 tnum')}>
-              {Array.from({ length: SLOTS }, (_, i) => <option key={i} value={i}>{slotLabel(i)}</option>)}
-            </select>
+            <Select id="bk-start" className="mt-1" buttonClassName="tnum" value={b.start} onChange={(s) => setB((x) => ({ ...x, start: s, end: Math.max(x.end, s + 1) }))}
+              options={Array.from({ length: SLOTS }, (_, i) => ({ value: i, label: slotLabel(i) }))} />
           </div>
           <div>
             <label className="block text-[12px] text-muted-fg" htmlFor="bk-end">Конец</label>
-            <select id="bk-end" value={b.end} onChange={(e) => set('end', +e.target.value)} className={cx(field, 'mt-1 tnum')}>
-              {Array.from({ length: SLOTS }, (_, i) => i + 1).filter((i) => i > b.start).map((i) => <option key={i} value={i}>{slotLabel(i)}</option>)}
-            </select>
+            <Select id="bk-end" className="mt-1" buttonClassName="tnum" value={b.end} onChange={(v) => set('end', v)}
+              options={Array.from({ length: SLOTS }, (_, i) => i + 1).filter((i) => i > b.start).map((i) => ({ value: i, label: slotLabel(i) }))} />
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2 text-[12.5px]">

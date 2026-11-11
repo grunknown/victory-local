@@ -18,6 +18,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-border-hover: var(--border-hover);
+  --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
@@ -31,70 +32,42 @@
   --color-row-hover: var(--row-hover);
   --color-row-active: var(--row-active);
   --radius-xl: 12px;
-  --radius-2xl: 16px;
+  --radius-2xl: 20px;
 }
 
 :root {
   color-scheme: dark;
-  --sidebar: #08090a;
-  --bg: #0e0f11;
-  --fg: #f7f8f8;
-  --card: #131416;
-  --card-2: #17181b;
-  --muted: #1f2023;
-  --row-hover: rgba(255, 255, 255, 0.055);
-  --row-active: rgba(255, 255, 255, 0.075);
-  --muted-fg: #8a8f98;
-  --faint: #62666d;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.13);
-  --border-hover: rgba(255, 255, 255, 0.22);
-  --accent: #6e79d6;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(110, 121, 214, 0.14);
+  /* Нейтральная графитовая палитра, акцент — чистый белый, как на victoryagency.ru.
+     Обводок нет: --border* прозрачные, карточки отделяются поверхностью. */
+  --sidebar: #050505;
+  --bg: #0a0a0a;
+  --fg: #f5f5f5;
+  --card: #141414;
+  --card-2: #1a1a1a;
+  --muted: #202020;
+  --row-hover: rgba(255, 255, 255, 0.06);
+  --row-active: rgba(255, 255, 255, 0.09);
+  --muted-fg: #8f8f8f;
+  --faint: #5c5c5c;
+  --border: transparent;
+  --border-strong: transparent;
+  --border-hover: transparent;
+  --line: rgba(255, 255, 255, 0.06);
+  --accent: #ffffff;
+  --accent-fg: #0a0a0a;
+  --accent-soft: rgba(255, 255, 255, 0.08);
   --warn: #e2a33d;
   --warn-soft: rgba(226, 163, 61, 0.12);
   --ok: #4cb782;
   --ok-soft: rgba(76, 183, 130, 0.13);
   --danger: #eb5757;
   --danger-soft: rgba(235, 87, 87, 0.13);
-  --glow: rgba(110, 121, 214, 0.35);
-  --plate-line: rgba(235, 238, 255, 0.22);
-  --plate-fill: rgba(235, 238, 255, 0.07);
-  --cover-bg: #0b0c0e;
+  --glow: rgba(255, 255, 255, 0.18);
+  --plate-line: rgba(255, 255, 255, 0.16);
+  --plate-fill: rgba(255, 255, 255, 0.05);
+  --cover-bg: #111111;
   --av-bg: 0.30;
   --av-fg: 0.88;
-}
-:root[data-app-theme="light"] {
-  color-scheme: light;
-  --sidebar: #f3f3f4;
-  --bg: #fcfcfc;
-  --fg: #1b1c1e;
-  --card: #ffffff;
-  --card-2: #f7f7f8;
-  --muted: #f0f0f2;
-  --row-hover: rgba(16, 18, 30, 0.04);
-  --row-active: rgba(16, 18, 30, 0.075);
-  --muted-fg: #6b6f76;
-  --faint: #9a9ea6;
-  --border: rgba(16, 18, 30, 0.08);
-  --border-strong: rgba(16, 18, 30, 0.14);
-  --border-hover: rgba(16, 18, 30, 0.24);
-  --accent: #5e6ad2;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(94, 106, 210, 0.10);
-  --warn: #b57712;
-  --warn-soft: rgba(181, 119, 18, 0.10);
-  --ok: #2f9a63;
-  --ok-soft: rgba(47, 154, 99, 0.10);
-  --danger: #d03e3e;
-  --danger-soft: rgba(208, 62, 62, 0.10);
-  --glow: rgba(94, 106, 210, 0.25);
-  --plate-line: rgba(60, 70, 140, 0.20);
-  --plate-fill: rgba(94, 106, 210, 0.06);
-  --cover-bg: #eef0f6;
-  --av-bg: 0.92;
-  --av-fg: 0.40;
 }
 
 html, body, #root { height: 100%; }
@@ -110,9 +83,22 @@ body {
 .tnum { font-variant-numeric: tabular-nums; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
 .no-ring:focus-visible { outline: none; }
+/* Поля ввода: белая каретка. В однострочных полях системная каретка спрятана,
+   вместо неё рисуется своя, повыше (src/caret.js). */
+input, textarea { caret-color: var(--fg); }
+input.vl-caret { caret-color: transparent; }
+.vl-caret-bar {
+  display: none; position: fixed; left: 0; top: 0; z-index: 200; width: 1.5px; border-radius: 1px;
+  background: var(--fg); pointer-events: none; animation: caretblink 1.06s steps(1) .5s infinite;
+}
+@keyframes caretblink { 50% { opacity: 0; } }
 ::selection { background: var(--accent); color: var(--accent-fg); }
 
 * { scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+/* Карусели без полосы прокрутки: листаются стрелками и свайпом.
+   Правило вне слоёв Tailwind, иначе его перебивает общее правило выше. */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* Фирменные «пластины»: наклонённые скруглённые панели с тонким светлым краем */
 .plates { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
@@ -124,7 +110,7 @@ body {
   transition: transform .7s cubic-bezier(.2,.8,.2,1);
 }
 .group:hover .plates i { transform: rotate(-38deg) skewX(8deg) translate(var(--dx, 14px), var(--dy, -10px)); }
-.cover-bg { background: radial-gradient(120% 90% at 85% 0%, rgba(110,121,214,.16), transparent 60%), var(--cover-bg); }
+.cover-bg { background: radial-gradient(120% 90% at 85% 0%, rgba(255,255,255,.07), transparent 60%), var(--cover-bg); }
 
 /* Медиа из Telegram-постов */
 .media img { transition: transform .8s cubic-bezier(.2,.8,.2,1), filter .4s; }
@@ -137,10 +123,10 @@ body {
 /* Лоадер */
 .loader { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #08090a; transition: opacity .45s ease, visibility .45s; }
 .loader.done { opacity: 0; visibility: hidden; }
-.loader .mark path { fill: transparent; stroke: #e9ebff; stroke-width: 5; stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw .7s cubic-bezier(.6,0,.2,1) forwards, fillin .35s .6s ease forwards; }
+.loader .mark path { fill: transparent; stroke: #ffffff; stroke-width: 5; stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw .7s cubic-bezier(.6,0,.2,1) forwards, fillin .35s .6s ease forwards; }
 .loader .mark path:nth-child(2) { animation-delay: .12s, .7s; }
 .loader .word { opacity: 0; transform: translateY(10px); animation: wordin .4s .55s ease forwards; }
-.loader .sweep { position: absolute; inset: 0; background: radial-gradient(600px 300px at 50% 50%, rgba(110,121,214,.22), transparent 70%); opacity: 0; animation: pulse 1s .3s ease forwards; }
+.loader .sweep { position: absolute; inset: 0; background: radial-gradient(600px 300px at 50% 50%, rgba(255,255,255,.12), transparent 70%); opacity: 0; animation: pulse 1s .3s ease forwards; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes fillin { to { fill: #ffffff; stroke: transparent; } }
 @keyframes wordin { to { opacity: 1; transform: none; } }
@@ -170,7 +156,39 @@ body {
 .tip[data-tip]:hover::after {
   content: attr(data-tip); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
   white-space: nowrap; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500;
-  background: var(--card-2); color: var(--fg); border: 1px solid var(--border-strong);
-  box-shadow: 0 8px 24px -8px rgba(0,0,0,.5); z-index: 60; pointer-events: none;
+  background: var(--card-2); color: var(--fg); box-shadow: 0 8px 24px -8px rgba(0,0,0,.5); z-index: 60; pointer-events: none;
 }
 .tip { position: relative; }
+
+/* Victory Coin: при наведении монетка делает оборот вокруг вертикальной оси */
+.coin-btn .coin-3d { transform-style: preserve-3d; }
+.coin-btn:hover .coin-3d { animation: coinflip .9s cubic-bezier(.3,.7,.3,1); }
+@keyframes coinflip { from { transform: perspective(200px) rotateY(0); } to { transform: perspective(200px) rotateY(720deg); } }
+
+/* Сторис */
+.story-ring { background: conic-gradient(from 210deg, #fff, #8f8f8f, #fff); }
+.story-ring.seen { background: var(--muted); }
+.story-bar > i { display: block; height: 100%; background: #fff; transform-origin: left; }
+@keyframes storyfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce) { .vl-caret-bar { animation: none !important; } }
+
+/* ---------- Текстурные плитки (как на victoryagency.ru) ----------
+   .tex — точечная сетка только в правом нижнем углу, у иконки, подальше от текста.
+   При наведении сетка проявляется сильнее, а иконка .tex-icon становится ярче. Ничего не двигается
+   и не светит под текст, поэтому контраст текста одинаковый в покое и при наведении. */
+.tex { position: relative; isolation: isolate; overflow: hidden; }
+.tex::before, .tex::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-size: 7px 7px; background-position: right bottom;
+  -webkit-mask-image: radial-gradient(70% 85% at 100% 100%, #000 0%, transparent 72%);
+          mask-image: radial-gradient(70% 85% at 100% 100%, #000 0%, transparent 72%);
+}
+.tex::before { background-image: radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.5px); }
+.tex::after { background-image: radial-gradient(rgba(255,255,255,.20) 1px, transparent 1.5px); opacity: 0; transition: opacity .45s ease; }
+.tex:hover::after, .tex:focus-visible::after { opacity: 1; }
+.tex-icon { position: absolute; z-index: -1; pointer-events: none; color: rgba(255,255,255,.06); transition: color .45s ease, opacity .45s ease, filter .45s ease; }
+.tex:hover .tex-icon, .tex:focus-visible .tex-icon { color: rgba(255,255,255,.12); }
+/* 3D-картинки: чёрный фон растворяется в плитке, при наведении картинка становится ярче */
+img.tex-icon { mix-blend-mode: lighten; opacity: .5; filter: saturate(.9) brightness(.9); }
+.tex:hover img.tex-icon, .tex:focus-visible img.tex-icon { opacity: .85; filter: none; }

@@ -7,9 +7,11 @@ import { RoomsPage } from './rooms.jsx';
 import { FormsPage } from './forms.jsx';
 import { KbPage, KbArticle } from './kb.jsx';
 import { StorePage } from './store.jsx';
+import { ItPage } from './it.jsx';
 import { DEPTS } from './data.js';
 import { LuCheck } from 'react-icons/lu';
 import { cx } from './ui.jsx';
+import { installCaret } from './caret.js';
 
 function Toaster() {
   const [items, setItems] = useState([]);
@@ -21,7 +23,7 @@ function Toaster() {
   return (
     <div className="pointer-events-none fixed z-[80] flex flex-col gap-2" style={{ right: 'max(16px, env(safe-area-inset-right, 0px))', bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }} aria-live="polite">
       {items.map((t) => (
-        <div key={t.id} className="toast pointer-events-auto flex w-[min(360px,calc(100vw-32px))] items-start gap-3 rounded-xl border border-border-strong bg-card p-3.5 shadow-2xl shadow-black/50">
+        <div key={t.id} className="toast pointer-events-auto flex w-[min(360px,calc(100vw-32px))] items-start gap-3 rounded-xl bg-card-2 p-3.5 shadow-2xl shadow-black/50">
           <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-ok text-white"><LuCheck className="h-3 w-3" /></span>
           <span><span className="block text-[14px] font-medium">{t.title}</span>{t.text && <span className="block text-[13px] text-muted-fg">{t.text}</span>}</span>
         </div>
@@ -40,13 +42,11 @@ const readHash = () => (location.hash || '').replace(/^#/, '') || 'home';
 
 function App() {
   const [route, setRoute] = useState(readHash());
-  const [theme, setTheme] = useState(store.get('vl-theme') || 'dark');
   const [menu, setMenu] = useState(false);
   const [cmdk, setCmdk] = useState(false);
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(!store.sget('vl-loaded'));
 
-  useEffect(() => { document.documentElement.dataset.appTheme = theme; store.set('vl-theme', theme); }, [theme]);
   useEffect(() => {
     const h = () => setRoute(readHash());
     addEventListener('hashchange', h);
@@ -72,6 +72,7 @@ function App() {
   else if (route === 'people') page = <DirectionPage key="board" id="board" go={go} openPerson={openPerson} />;
   else if (route === 'rooms') page = <RoomsPage openPerson={openPerson} />;
   else if (route === 'forms') page = <FormsPage openPerson={openPerson} />;
+  else if (route === 'it') page = <ItPage openPerson={openPerson} />;
   else if (route === 'store') page = <StorePage openPerson={openPerson} />;
   else if (route === 'kb') page = <KbPage go={go} />;
   else if (route.startsWith('kb-')) page = <KbArticle key={route} id={route.slice(3)} go={go} openPerson={openPerson} />;
@@ -89,8 +90,8 @@ function App() {
       <div className={cx('lg:flex lg:h-full', loading ? 'opacity-0' : 'app-in')}>
         <Sidebar route={route} go={go} open={menu} onClose={() => setMenu(false)} />
         <div className="min-w-0 flex-1 lg:h-full lg:py-2 lg:pr-2">
-          <div id="panel" className="min-h-full bg-bg lg:h-full lg:overflow-y-auto lg:rounded-xl lg:border lg:border-border">
-            <Header onMenu={() => setMenu(true)} onSearch={() => setCmdk(true)} theme={theme} setTheme={setTheme} go={go} openPerson={openPerson} />
+          <div id="panel" className="min-h-full bg-bg lg:h-full lg:overflow-y-auto lg:rounded-2xl">
+            <Header onMenu={() => setMenu(true)} onSearch={() => setCmdk(true)} go={go} openPerson={openPerson} />
             <main id="main" key={route} className="fade pb-16" style={{ paddingTop: 28, paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
               <div className="lg:px-4">{page}</div>
             </main>
@@ -104,4 +105,5 @@ function App() {
   );
 }
 
+installCaret();
 createRoot(document.getElementById('root')).render(<App />);
