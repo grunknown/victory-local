@@ -12,6 +12,7 @@ import { cx, Avatar, VacationPill, StatusPill, Coin, fmtDay, fmtDM, tenure, dept
 export const NAV_TOP = [
   { id: 'home', label: 'Главная', icon: LuHouse },
   { id: 'blog', label: 'Блог', icon: LuNewspaper, match: (r) => r.startsWith('news-') },
+  { id: 'people', label: 'Сотрудники', icon: LuUsers, match: (r) => r.startsWith('people-') },
 ];
 export const NAV_OFFICE = [
   { id: 'rooms', label: 'Переговорки', icon: LuCalendar },
@@ -25,7 +26,6 @@ export const NAV_OFFICE = [
   ] },
   { id: 'store', label: 'Магазин мерча', icon: LuShoppingBag },
 ];
-const DIR_HUE = { board: 265, marketing: 230, orm: 200, leadgen: 30, production: 300, clients: 150, vdl: 55, it: 210, people: 340, admin: 100 };
 
 export function Logo({ className, word = true }) {
   return (
@@ -93,20 +93,10 @@ function GroupLabel({ label, open, onToggle }) {
   );
 }
 
-const DirTile = ({ d }) => (
-  <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] bg-white/[0.08] text-[10px] font-semibold text-fg/80">
-    {d.short[0]}
-  </span>
-);
-
 export function Sidebar({ route, go, open, onClose }) {
-  const [groups, setGroups] = useState({ people: true, office: true });
-  const [openDirs, setOpenDirs] = useState(() => {
-    const d = route.startsWith('people-') ? DEPTS[route.slice(7)] : null;
-    return d ? { [d.parent || d.id]: true } : {};
-  });
+  const [groups, setGroups] = useState({ office: true });
+  const [openDirs, setOpenDirs] = useState({});
   const c = false;
-  const curDept = route.startsWith('people-') ? DEPTS[route.slice(7)] : null;
   return (
     <>
       {open && <div className="fixed inset-0 z-40 bg-black/60 lg:hidden fade" onClick={onClose} />}
@@ -128,44 +118,6 @@ export function Sidebar({ route, go, open, onClose }) {
         <nav className={cx('flex-1 pb-4', c ? 'overflow-visible px-2' : 'overflow-x-hidden overflow-y-auto px-3')}>
           <div className="mt-2 flex flex-col gap-px">
             {NAV_TOP.map((n) => <Row key={n.id} icon={n.icon} label={n.label} collapsed={c} active={route === n.id || n.match?.(route)} onClick={() => go(n.id)} />)}
-          </div>
-
-          <div className="mt-5">
-            {!c ? <GroupLabel label="Сотрудники" open={groups.people} onToggle={() => setGroups((g) => ({ ...g, people: !g.people }))} /> : <div className="mx-2 mb-2 border-t border-border" />}
-            {(groups.people || c) && (
-              <div className="mt-px flex flex-col gap-px">
-                {!c && DIRECTIONS.map((d) => {
-                  const isOpen = openDirs[d.id];
-                  const active = route === `people-${d.id}`;
-                  return (
-                    <div key={d.id}>
-                      <div className="group/dir relative">
-                        <Row tile={<DirTile d={d} />} label={d.short} active={active} onClick={() => go(`people-${d.id}`)}
-                          trailing={d.children.length > 0 && (
-                            <span role="button" tabIndex={0} aria-label={isOpen ? 'Свернуть' : 'Развернуть'}
-                              onClick={(e) => { e.stopPropagation(); setOpenDirs((o) => ({ ...o, [d.id]: !o[d.id] })); }}
-                              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setOpenDirs((o) => ({ ...o, [d.id]: !o[d.id] })); } }}
-                              className={cx('-mr-1 grid h-5 w-5 place-items-center rounded text-muted-fg transition-opacity hover:bg-row-hover hover:text-fg', isOpen || active || curDept?.parent === d.id ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100')}>
-                              <CaretRight className={cx('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-90')} />
-                            </span>
-                          )} />
-                      </div>
-                      {isOpen && (
-                        <div className="relative ml-[15px] flex flex-col gap-px border-l border-border py-px pl-[9px] fade">
-                          {d.children.map((x) => (
-                            <button key={x.id} onClick={() => go(`people-${x.id}`)}
-                              className={cx('flex h-[28px] items-center rounded-md px-2 text-left text-[13px] transition-colors',
-                                route === `people-${x.id}` ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
-                              <span className="truncate">{x.name}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           <div className="mt-5">
@@ -219,7 +171,8 @@ export function useCoins() {
 export function Header({ onMenu, onSearch, go, openPerson }) {
   const coins = useCoins();
   return (
-    <header className="sticky z-30 flex h-[56px] items-center gap-3 bg-bg/80 backdrop-blur-xl" style={{ top: 'env(safe-area-inset-top, 0px)', paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
+    <header className="sticky z-30 bg-bg/80 backdrop-blur-xl" style={{ top: 'env(safe-area-inset-top, 0px)', paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
+      <div className="lg:px-4"><div className="mx-auto flex h-[56px] w-full max-w-[1320px] items-center gap-3">
       <button className="rounded-lg p-2 hover:bg-muted lg:hidden" onClick={onMenu} aria-label="Меню"><LuMenu className="h-5 w-5" /></button>
       <button onClick={onSearch} className="flex h-9 min-w-0 flex-1 items-center gap-2.5 rounded-xl bg-card px-3 text-left text-muted-fg transition-colors hover:bg-card-2 md:max-w-[460px]">
         <LuSearch className="h-4 w-4 shrink-0" />
@@ -235,7 +188,8 @@ export function Header({ onMenu, onSearch, go, openPerson }) {
           <span className="hidden text-left leading-tight xl:block"><span className="block text-[13px] font-medium">{ME.name}</span><span className="block text-[11px] text-muted-fg">{ME.role}</span></span>
         </button>
       </div>
-    </header>
+
+      </div></div>    </header>
   );
 }
 

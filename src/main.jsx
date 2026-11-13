@@ -93,7 +93,7 @@ function App() {
           <div id="panel" className="min-h-full bg-bg lg:h-full lg:overflow-y-auto lg:rounded-2xl">
             <Header onMenu={() => setMenu(true)} onSearch={() => setCmdk(true)} go={go} openPerson={openPerson} />
             <main id="main" key={route} className="fade pb-16" style={{ paddingTop: 28, paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
-              <div className="lg:px-4">{page}</div>
+              <div className="lg:px-4">{route === 'home' ? page : <div className="mx-auto w-full max-w-[1320px]">{page}</div>}</div>
             </main>
           </div>
         </div>

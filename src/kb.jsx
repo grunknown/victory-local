@@ -263,11 +263,11 @@ function KbSection({ id, go, children }) {
   const found = query ? ARTICLES.filter((a) => (a.title + ' ' + a.lead).toLowerCase().includes(query)) : [];
   const foundProducts = query ? PRODUCTS.filter((p) => (p.name + ' ' + p.short + ' ' + p.tag).toLowerCase().includes(query)) : [];
   return (
-    <div className="mx-auto max-w-[1180px]">
+    <div>
       <div className="tex rounded-3xl bg-card px-6 py-7 sm:px-8 sm:py-8">
         <div className="text-[13px] text-muted-fg">База знаний</div>
         <div className="mt-1.5 flex flex-wrap items-center justify-between gap-4">
-          <h1 className="display text-[clamp(28px,3.6vw,40px)]">{sec.title}</h1>
+          <h1 className="display text-[clamp(26px,3.4vw,38px)]">{sec.title}</h1>
           <label className="flex h-11 w-full cursor-text items-center gap-2.5 rounded-xl bg-muted px-3.5 text-muted-fg transition-colors hover:bg-row-active focus-within:bg-row-active focus-within:text-fg sm:w-[320px]">
             <LuSearch className="h-4 w-4 shrink-0" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по базе знаний" className="no-ring min-w-0 flex-1 bg-transparent text-[14px] text-fg outline-none placeholder:text-muted-fg" />
@@ -587,7 +587,7 @@ function Body({ blocks }) {
 
 function ArticleShell({ crumbs, title, meta, heads, children, aside, go }) {
   return (
-    <div className="mx-auto max-w-[1180px]">
+    <div>
       <Crumbs items={crumbs} go={go} />
       <div className="mt-6 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_220px]">
         <article className="min-w-0">

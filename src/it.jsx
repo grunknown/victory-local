@@ -57,9 +57,9 @@ export function ItPage({ openPerson }) {
   const field = 'w-full rounded-xl bg-muted px-3.5 text-[14px] text-fg outline-none no-ring placeholder:text-faint transition-colors focus:bg-row-active';
 
   return (
-    <div className="mx-auto max-w-[1100px]">
+    <div>
       <div className="text-[13px] text-muted-fg">IT-поддержка</div>
-      <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,36px)]">Помощь Фиксиков</h1>
+      <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">Помощь Фиксиков</h1>
       <p className="mt-2 max-w-[560px] text-[15px] text-muted-fg">Опишите, что сломалось, и скажите, где вас найти. Фиксик подойдёт сам.</p>
 
       <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">

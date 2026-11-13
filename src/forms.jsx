@@ -47,9 +47,9 @@ export function FormsPage({ openPerson }) {
   const hr = here('hrbp');
   const acc = here('accounting');
   return (
-    <div className="mx-auto max-w-[1280px]">
+    <div>
       <div className="text-[13px] text-muted-fg">Шаблоны заявлений, справок и отчётов</div>
-      <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,36px)]">Бланки документов</h1>
+      <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">Бланки документов</h1>
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
         <label className="flex h-9 w-full items-center gap-2 rounded-lg bg-muted px-3 text-muted-fg transition-colors focus-within:bg-card-2 focus-within:text-fg sm:w-[280px]">

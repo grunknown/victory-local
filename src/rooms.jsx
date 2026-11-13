@@ -71,11 +71,11 @@ export function RoomsPage({ openPerson }) {
   const cancel = (b) => { setBookings((x) => x.filter((y) => y.id !== b.id)); toast('Бронь отменена', `${ROOMS.find((r) => r.id === b.room).name}, ${slotLabel(b.start)}–${slotLabel(b.end)}`); };
 
   return (
-    <div className="mx-auto max-w-[1280px]">
+    <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="text-[13px] text-muted-fg">Восточная, 7Г · {ROOMS.length} переговорок</div>
-          <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,36px)]">Переговорки</h1>
+          <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">Переговорки</h1>
         </div>
         <Button onClick={() => setDraft({ room: rooms[0]?.id || ROOMS[0].id, day, start: Math.ceil(now ?? 2), end: Math.ceil(now ?? 2) + 2, title: '' })}><LuPlus className="h-4 w-4" />Забронировать</Button>
       </div>
@@ -86,14 +86,14 @@ export function RoomsPage({ openPerson }) {
       {/* Панель: дни + фильтры */}
       <div className="mt-10 flex flex-wrap items-center gap-2">
         <h2 className="mr-3 text-[17px] font-semibold tracking-[-0.01em]">Расписание</h2>
-        <div className="flex items-center gap-1">
-          <button onClick={() => setDay(Math.max(0, day - 1))} disabled={day === 0} className="grid h-8 w-8 place-items-center rounded-lg text-muted-fg hover:bg-row-hover hover:text-fg disabled:opacity-30" aria-label="Предыдущий день"><LuChevronLeft /></button>
+        <div className="no-scrollbar flex max-w-full min-w-0 items-center gap-1 overflow-x-auto">
+          <button onClick={() => setDay(Math.max(0, day - 1))} disabled={day === 0} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-fg hover:bg-row-hover hover:text-fg disabled:opacity-30" aria-label="Предыдущий день"><LuChevronLeft /></button>
           {DAYS.map((d, i) => (
-            <button key={i} onClick={() => setDay(i)} className={cx('h-8 rounded-lg px-2.5 text-[13px] transition-colors', day === i ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
+            <button key={i} onClick={() => setDay(i)} className={cx('h-8 shrink-0 whitespace-nowrap rounded-lg px-2.5 text-[13px] transition-colors', day === i ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
               {i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : `${['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][d.getDay()]}, ${d.getDate()}`}
             </button>
           ))}
-          <button onClick={() => setDay(Math.min(6, day + 1))} disabled={day === 6} className="grid h-8 w-8 place-items-center rounded-lg text-muted-fg hover:bg-row-hover hover:text-fg disabled:opacity-30" aria-label="Следующий день"><LuChevronRight /></button>
+          <button onClick={() => setDay(Math.min(6, day + 1))} disabled={day === 6} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-fg hover:bg-row-hover hover:text-fg disabled:opacity-30" aria-label="Следующий день"><LuChevronRight /></button>
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-1">
           <button onClick={() => setVks(!vks)} className={cx('flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] transition-colors', vks ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}><LuVideo className="h-3.5 w-3.5" />ВКС</button>
@@ -112,9 +112,9 @@ export function RoomsPage({ openPerson }) {
         {mine.map((b) => {
           const room = ROOMS.find((r) => r.id === b.room);
           return (
-            <div key={b.id} className="group/m -mx-2 flex items-center gap-4 rounded-lg px-2 py-2.5 transition-colors hover:bg-row-hover">
-              <span className="w-[120px] shrink-0 text-[13px] text-muted-fg">{b.day === 0 ? 'Сегодня' : b.day === 1 ? 'Завтра' : fmtDay(DAYS[b.day])}</span>
-              <span className="w-[110px] shrink-0 text-[13.5px] font-medium tnum">{slotLabel(b.start)}–{slotLabel(b.end)}</span>
+            <div key={b.id} className="group/m -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-row-hover sm:gap-4">
+              <span className="w-[72px] shrink-0 text-[13px] text-muted-fg sm:w-[120px]">{b.day === 0 ? 'Сегодня' : b.day === 1 ? 'Завтра' : fmtDay(DAYS[b.day])}</span>
+              <span className="w-[88px] shrink-0 text-[13.5px] font-medium tnum sm:w-[110px]">{slotLabel(b.start)}–{slotLabel(b.end)}</span>
               <span className="min-w-0 flex-1 truncate text-[13.5px]">{b.title}</span>
               <span className="hidden shrink-0 text-[13px] text-muted-fg sm:block">{room.name} · {room.floor} этаж</span>
               <button onClick={() => setDraft(b)} className="rounded-md px-2 py-1 text-[12.5px] text-muted-fg hover:bg-row-active hover:text-fg">Изменить</button>

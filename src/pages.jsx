@@ -215,7 +215,7 @@ export function Blog({ go }) {
   const [r, setR] = useState('Все');
   const list = NEWS.filter((n) => r === 'Все' || n.rubric === r);
   return (
-    <div className="mx-auto max-w-[1320px]">
+    <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="text-[13px] text-muted-fg">Новости и жизнь компании</div>
@@ -275,10 +275,10 @@ export function NewsPage({ id, go }) {
   const [mine, setMine] = useState(null);
   const others = NEWS.filter((x) => x.id !== n.id).slice(0, 3);
   return (
-    <article className="mx-auto max-w-[860px]">
+    <article className="max-w-[860px]">
       <button onClick={() => go('blog')} className="mb-4 inline-flex items-center gap-1 text-[13px] text-muted-fg hover:text-fg"><LuChevronLeft /> В блог</button>
       <div className="flex items-center gap-2 text-[12px]"><span className="font-medium text-muted-fg">{n.rubric}</span></div>
-      <h1 className="display mt-3 text-[clamp(26px,3.6vw,40px)]">{n.title}</h1>
+      <h1 className="display mt-3 text-[clamp(26px,3.4vw,38px)]">{n.title}</h1>
       <div className="mt-3 flex flex-wrap gap-4 text-[13px] text-muted-fg"><span>{fmtDay(n.date)}</span><span className="inline-flex items-center gap-1"><LuClock className="h-3.5 w-3.5" />{n.mins} мин чтения</span><span>Команда HR</span></div>
       {n.video ? <NewsVideo n={n} />
         : n.photo ? <img src={n.photo} alt="" className="mt-6 aspect-[16/9] w-full rounded-2xl object-cover" />
@@ -287,7 +287,7 @@ export function NewsPage({ id, go }) {
             {n.images.map((src) => <img key={src} src={src} alt="" className="aspect-square w-full object-cover" />)}
           </div>
         : <div className="group relative mt-6 h-[260px] overflow-hidden rounded-2xl cover-bg"><Plates kind={n.cover} /></div>}
-      <div className="mx-auto mt-8 max-w-[680px]">
+      <div className="mt-8 max-w-[680px]">
         <p className="text-[18px] leading-relaxed">{n.lead}</p>
         {n.body.map(([t, text], i) =>
           t === 'h' ? <h2 key={i} className="display mt-8 text-[22px]">{text}</h2>
@@ -332,7 +332,7 @@ export function Stub({ route }) {
   const s = STUBS[key] || STUBS.people;
   const dept = route.startsWith('people-') ? DEPTS[route.slice(7)] : null;
   return (
-    <div className="mx-auto max-w-[1320px]">
+    <div>
       <div className="text-[13px] text-muted-fg">{dept ? 'Сотрудники' : 'Раздел'}</div>
       <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">{dept ? dept.name : s.title}</h1>
       <Card className="group relative mt-6 overflow-hidden p-8">

@@ -206,10 +206,10 @@ export function StorePage({ openPerson }) {
   const active = orders.filter((o) => o.status !== 'done').length;
 
   return (
-    <div className="mx-auto max-w-[1280px]">
+    <div>
       <div className="text-[13px] text-muted-fg">Мерч за Victory Coin</div>
       <div className="mt-1.5 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="display text-[clamp(26px,3.4vw,36px)]">Магазин мерча</h1>
+        <h1 className="display text-[clamp(26px,3.4vw,38px)]">Магазин мерча</h1>
         <div className="flex items-center gap-2 rounded-xl bg-accent-soft px-3.5 py-2">
           <span className="text-[13px] text-muted-fg">Ваш баланс</span>
           <span className="tnum inline-flex items-center gap-1.5 text-[16px] font-semibold text-accent"><Coin size={17} />{fmt(coins)}</span>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LuChevronRight, LuPhone, LuSend, LuCheck, LuMail } from './gicons.jsx';
-import { DEPTS, GROUPS, PEOPLE, byId, deptPeople, groupPeople } from './data.js';
+import { DIRECTIONS, DEPTS, GROUPS, PEOPLE, byId, deptPeople, groupPeople } from './data.js';
 import { cx, Avatar, StatusPill, copyText, toast } from './ui.jsx';
 
 // Подразделение одним списком: заголовок дирекции → директор → отделы → группы (тимлид + участники).
@@ -55,20 +55,7 @@ export function PersonCard({ p, onOpen }) {
   );
 }
 
-const GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4';
-
-function Crumbs({ items, go }) {
-  return (
-    <nav className="flex flex-wrap items-center gap-1 text-[13px] text-muted-fg" aria-label="Путь">
-      {items.map((it, i) => (
-        <React.Fragment key={it.label}>
-          {i > 0 && <LuChevronRight className="h-3.5 w-3.5 text-faint" />}
-          <span className={cx('px-1', i === items.length - 1 && 'text-fg')}>{it.label}</span>
-        </React.Fragment>
-      ))}
-    </nav>
-  );
-}
+const GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3';
 
 function Label({ children }) {
   return <h3 className="mb-3 text-[17px] font-semibold tracking-[-0.01em] text-fg">{children}</h3>;
@@ -91,8 +78,8 @@ function Group({ gid, onOpen, now }) {
 
 function DeptSection({ d, onOpen, now }) {
   return (
-    <section id={`dept-${d.id}`} className="mt-14 scroll-mt-24">
-      <h2 className="display text-[26px]">{d.name}</h2>
+    <section id={`dept-${d.id}`} className="mt-14 scroll-mt-[72px]">
+      <h3 className="display text-[22px]">{d.name}</h3>
       <div className="mt-5"><Label>Руководитель отдела</Label>
         <div className={GRID}><PersonCard p={byId(d.head)} onOpen={onOpen} now={now} /></div>
       </div>
@@ -103,7 +90,49 @@ function DeptSection({ d, onOpen, now }) {
   );
 }
 
-// ---------- Дирекция целиком, одним списком ----------
+// ---------- Меню дирекций слева: текущая дирекция раскрыта до отделов ----------
+function PeopleNav({ dirId, focus, go }) {
+  const [open, setOpen] = useState({ [dirId]: true });
+  useEffect(() => setOpen((o) => ({ ...o, [dirId]: true })), [dirId]);
+  return (
+    <nav aria-label="Дирекции" className="sticky top-[72px] hidden max-h-[calc(100vh-96px)] overflow-y-auto pb-6 lg:block">
+      <div className="flex flex-col gap-px">
+        {DIRECTIONS.map((d) => {
+          const active = d.id === dirId;
+          const isOpen = open[d.id] && d.children.length > 0;
+          return (
+            <div key={d.id}>
+              <div className={cx('group/r flex h-9 items-center rounded-lg transition-colors', active && !focus ? 'bg-row-active text-fg' : 'text-fg/80 hover:bg-row-hover hover:text-fg')}>
+                <button onClick={() => go('people-' + d.id)} className="flex h-full min-w-0 flex-1 items-center gap-2.5 pl-2 text-left text-[13.5px]">
+                  <DirTile d={d} size={20} />
+                  <span className="truncate">{d.short}</span>
+                </button>
+                {d.children.length > 0 && (
+                  <button onClick={() => setOpen((o) => ({ ...o, [d.id]: !o[d.id] }))} aria-label={isOpen ? 'Свернуть' : 'Развернуть'} aria-expanded={!!isOpen}
+                    className="mr-1 grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-fg hover:bg-row-hover hover:text-fg">
+                    <LuChevronRight className={cx('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-90')} />
+                  </button>
+                )}
+              </div>
+              {isOpen && (
+                <div className="fade ml-[19px] flex flex-col gap-px py-px pl-[11px]">
+                  {d.children.map((c) => (
+                    <button key={c.id} onClick={() => go('people-' + c.id)}
+                      className={cx('flex h-8 items-center rounded-md px-2 text-left text-[13px] transition-colors', focus === c.id ? 'bg-row-active text-fg' : 'text-muted-fg hover:bg-row-hover hover:text-fg')}>
+                      <span className="truncate">{c.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+// ---------- Страница «Сотрудники»: меню дирекций слева, люди дирекции справа ----------
 export function DirectionPage({ id, focus, go, openPerson }) {
   const d = DEPTS[id];
   const now = useNow();
@@ -113,22 +142,37 @@ export function DirectionPage({ id, focus, go, openPerson }) {
     if (el) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
   }, [focus]);
   return (
-    <div className="mx-auto max-w-[1280px]">
-      <Crumbs items={[{ label: 'Сотрудники' }, { label: d.name }]} go={go} />
-      <div className="mt-3 flex items-center gap-3">
-        <DirTile d={d} size={32} />
-        <h1 className="display text-[clamp(24px,3.2vw,34px)]">{d.name}</h1>
+    <div>
+      <div className="text-[13px] text-muted-fg">{PEOPLE.length.toLocaleString('ru')} человек в {DIRECTIONS.length} дирекциях</div>
+      <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">Сотрудники</h1>
+
+      {/* на узких экранах вместо меню — лента дирекций */}
+      <div className="no-scrollbar -mx-4 mt-5 flex gap-1.5 overflow-x-auto px-4 lg:hidden">
+        {DIRECTIONS.map((x) => (
+          <button key={x.id} onClick={() => go('people-' + x.id)}
+            className={cx('h-8 shrink-0 rounded-full px-3 text-[13px] transition-colors', x.id === id ? 'bg-accent text-accent-fg' : 'bg-card text-muted-fg hover:text-fg')}>{x.short}</button>
+        ))}
       </div>
-      {id === 'board' ? (
-        <div className={cx(GRID, 'mt-8')}>{deptPeople('board').map((p) => <PersonCard key={p.id} p={p} onOpen={openPerson} now={now} />)}</div>
-      ) : (
-        <>
-          <div className="mt-8"><Label>Директор</Label>
-            <div className={GRID}><PersonCard p={byId(d.head)} onOpen={openPerson} now={now} /></div>
+
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[232px_minmax(0,1fr)]">
+        <PeopleNav dirId={id} focus={focus} go={go} />
+        <div className="min-w-0">
+          <div className="flex items-center gap-3">
+            <DirTile d={d} size={32} />
+            <h2 className="display text-[clamp(22px,2.6vw,28px)]">{d.name}</h2>
           </div>
-          {d.children.map((c) => <DeptSection key={c.id} d={DEPTS[c.id]} onOpen={openPerson} now={now} />)}
-        </>
-      )}
+          {id === 'board' ? (
+            <div className={cx(GRID, 'mt-6')}>{deptPeople('board').map((p) => <PersonCard key={p.id} p={p} onOpen={openPerson} now={now} />)}</div>
+          ) : (
+            <>
+              <div className="mt-6"><Label>Директор</Label>
+                <div className={GRID}><PersonCard p={byId(d.head)} onOpen={openPerson} now={now} /></div>
+              </div>
+              {d.children.map((c) => <DeptSection key={c.id} d={DEPTS[c.id]} onOpen={openPerson} now={now} />)}
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -145,9 +189,9 @@ export function CardsDemo({ openPerson }) {
   ].filter(Boolean);
   const caption = ['Работает', 'Работает удалённо', 'В отпуске', 'На больничном'];
   return (
-    <div className="mx-auto max-w-[1280px]">
+    <div>
       <div className="text-[13px] text-muted-fg">Витрина компонента</div>
-      <h1 className="display mt-1.5 text-[clamp(24px,3.2vw,34px)]">Карточка сотрудника</h1>
+      <h1 className="display mt-1.5 text-[clamp(26px,3.4vw,38px)]">Карточка сотрудника</h1>
       <p className="mt-2 max-w-[640px] text-[14px] text-muted-fg">Кольцо вокруг фото показывает статус: зелёное — работает, жёлтое — в отпуске, красное — на больничном. Кнопки внизу открывают чат в Telegram и копируют телефон, клик по карточке открывает профиль.</p>
       <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {people.map((p, i) => (
